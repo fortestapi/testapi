@@ -3,9 +3,7 @@ import { VALIDATION_PASSWORD, saltrounds } from "../utils/config.js";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { conection } from "../index.js";
-
 const usersRouter = express.Router();
-
 usersRouter.get("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     const sql_query = `SELECT * FROM users`;
@@ -42,7 +40,7 @@ usersRouter.post("/login", async (req, res) => {
           result[0]?.password
         );
         if (passwordCorrect) {
-          res.send(result[0]);
+          res.send('login success');
         } else {
           res.send("username or password incorrect");
         }
@@ -58,14 +56,15 @@ usersRouter.post("/login", async (req, res) => {
 usersRouter.post("/verify", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     const { email } = req.body;
-    const random = Math.floor(100000 + Math.random() * 900000).toString()
-     const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
-     conection.query(sql_query, (err, result) => {
-       if (err) {res.send(err.message);}
-       else{
+    const random = Math.floor(100000 + Math.random() * 900000).toString();
+    const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
+    conection.query(sql_query, (err, result) => {
+      if (err) {
+        res.send(err.message);
+      } else {
         res.send("email sent successfully");
-       }
-     });
+      }
+    });
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -75,7 +74,7 @@ usersRouter.post("/verify", async (req, res) => {
     });
     const MailOptions = {
       from: "forverifyemailfromnode@gmail.com",
-      to:email,
+      to: email,
       subject: "verify your email",
       text: random,
     };
@@ -88,6 +87,7 @@ usersRouter.post("/verify", async (req, res) => {
 });
 
 usersRouter.put("/verify", (req, res) => {
+  if (VALIDATION_PASSWORD == req.headers.authorization) {
   const { verificationnumber } = req.body;
   const find = `SELECT * FROM users WHERE verificationnumber = ${verificationnumber}`;
   conection.query(find, (err, result) => {
@@ -100,7 +100,9 @@ usersRouter.put("/verify", (req, res) => {
     } else {
       res.send("verification code incorrect");
     }
-  });
+  })}else{
+    res.status(401).send("you have no permission to this address");
+  }
 });
 
 usersRouter.post("/", async (req, res) => {
@@ -150,6 +152,7 @@ usersRouter.post("/", async (req, res) => {
     res.status(401).send("you have no permission to this address");
   }
 });
+
 usersRouter.put("/:id", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     const id = req.params.id;
@@ -210,7 +213,7 @@ usersRouter.delete("/:id", async (req, res) => {
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     const { email } = req.body;
-    const random = Math.floor(100000 + Math.random() * 900000).toString()
+    const random = Math.floor(100000 + Math.random() * 900000).toString();
     const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
     conection.query(sql_query, (err, result) => {
       if (result[0]) {
@@ -224,14 +227,14 @@ usersRouter.post("/forgotpassword", async (req, res) => {
         });
         const MailOptions = {
           from: "forverifyemailfromnode@gmail.com",
-          to:email,
+          to: email,
           subject: "verify your email",
           text: random,
         };
         transporter.sendMail(MailOptions);
         conection.query(update, (err, result) => {
           if (err) throw err;
-          res.send('email sent successfully');
+          res.send("email sent successfully");
         });
       } else {
         res.send("email not found");
