@@ -57,19 +57,20 @@ usersRouter.post("/login", async (req, res) => {
 });
 
 usersRouter.post("/verify", async (req, res) => {
-  const random = Math.floor(100000 + Math.random() * 900000);
+  
+  const random = Math.floor(100000 + Math.random() * 900000).toString()
   if (VALIDATION_PASSWORD == req.headers.authorization) {
+    const { email } = req.body;
   const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
   conection.query(sql_query, (err, result) => {
     if(result[0]){
-      const sql_query = `UPDATE users SET verificationnumber = ${random} WHERE email = '${email}'`;
+      const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = '${email}'`;
       conection.query(sql_query, (err, result) => {
         if (err) res.send(err.message);
         res.send(result);
       });
     }
   })
-    const { email } = req.body;
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -79,7 +80,7 @@ usersRouter.post("/verify", async (req, res) => {
     });
     const MailOptions = {
       from: "forverifyemailfromnode@gmail.com",
-      to: req.body.email,
+      to:email,
       subject: "verify your email",
       text: random,
     };
@@ -206,7 +207,7 @@ usersRouter.delete("/:id", async (req, res) => {
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     const { email } = req.body;
-    const random = Math.floor(100000 + Math.random() * 900000);
+    const random = Math.floor(100000 + Math.random() * 900000).toString()
     const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
     conection.query(sql_query, (err, result) => {
       if (result[0]) {
