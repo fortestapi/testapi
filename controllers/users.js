@@ -3,7 +3,6 @@ import { VALIDATION_PASSWORD, saltrounds } from "../utils/config.js";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { conection } from "../index.js";
-import jwt from "jsonwebtoken";
 
 const usersRouter = express.Router();
 
@@ -110,7 +109,6 @@ usersRouter.post("/", async (req, res) => {
       username,
       password,
       email,
-      balance,
       manID,
       phone,
       referralCode,
@@ -120,12 +118,11 @@ usersRouter.post("/", async (req, res) => {
     const passwordHash = await bcrypt.hash(password, Number(saltrounds));
     const sql_query = `INSERT INTO users
  (username, password, email,
-   balance,manID,phone,referralCode,
+   manID,phone,referralCode,
    referredBy,referrer)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
-     '${balance}',
      '${manID}',
      '${phone}',
      '${referralCode}',
@@ -168,7 +165,8 @@ usersRouter.put("/:id", async (req, res) => {
       referrer,
     } = req.body;
     const passwordHash = await bcrypt.hash(password, Number(saltrounds));
-    const existingUserName = `SELECT *  FROM users WHERE id!="${id}" AND username ="${username}" OR email ="${email}" AND id!="${id}"`;
+    const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
+     AND username ="${username}" OR email ="${email}" AND id!="${id}"`;
     const sql_query = `UPDATE users
    set username="${username}",
     password="${passwordHash}",
@@ -249,7 +247,9 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
     const { verificationnumber, password } = req.body;
     const passwordHash = await bcrypt.hash(password, Number(saltrounds));
     const sql_query = `SELECT * FROM users WHERE verificationnumber=${verificationnumber}`;
-    const update = `UPDATE users set password="${passwordHash}",verificationnumber=NULL where verificationnumber=${verificationnumber}`;
+    const update = `UPDATE users set
+     password="${passwordHash}",
+     verificationnumber=NULL where verificationnumber=${verificationnumber}`;
     conection.query(sql_query, (err, result) => {
       if (result[0]) {
         conection.query(update, (err, result) => {
