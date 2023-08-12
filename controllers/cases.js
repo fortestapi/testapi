@@ -6,8 +6,7 @@ const casesRouter = express.Router();
 
 casesRouter.get("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
-    const sql_query = `SELECT * FROM cases`;
-    conection.query(sql_query, (err, result) => {
+    conection.query("SELECT * FROM cases", (err, result) => {
       if (err) res.send(err.message);
       res.send(result);
     });
@@ -18,11 +17,13 @@ casesRouter.get("/", async (req, res) => {
 
 casesRouter.get("/:id", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
-    const sql_query = `SELECT * FROM cases WHERE id = ${req.params.id}`;
-    conection.query(sql_query, (err, result) => {
-      if (err) res.send(err.message);
-      res.send(result);
-    });
+    conection.query(
+      `SELECT * FROM cases WHERE id = ${req.params.id}`,
+      (err, result) => {
+        if (err) res.send(err.message);
+        res.send(result);
+      }
+    );
   } else {
     res.status(401).send("you have no permission to this address");
   }

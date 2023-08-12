@@ -57,9 +57,19 @@ usersRouter.post("/login", async (req, res) => {
 });
 
 usersRouter.post("/verify", async (req, res) => {
+  const random = Math.floor(100000 + Math.random() * 900000);
   if (VALIDATION_PASSWORD == req.headers.authorization) {
+  const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
+  conection.query(sql_query, (err, result) => {
+    if(result[0]){
+      const sql_query = `UPDATE users SET verificationnumber = ${random} WHERE email = '${email}'`;
+      conection.query(sql_query, (err, result) => {
+        if (err) res.send(err.message);
+        res.send(result);
+      });
+    }
+  })
     const { email } = req.body;
-    const token = jwt.sign(email, saltrounds);
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -71,7 +81,7 @@ usersRouter.post("/verify", async (req, res) => {
       from: "forverifyemailfromnode@gmail.com",
       to: req.body.email,
       subject: "verify your email",
-      text: token,
+      text: random,
     };
     transporter.sendMail(MailOptions, () => {
       res.send("email sent");
@@ -80,28 +90,28 @@ usersRouter.post("/verify", async (req, res) => {
     res.status(401).send("you have no permission to this address");
   }
 });
-
 usersRouter.post("/", async (req, res) => {
-if(VALIDATION_PASSWORD==req.headers.authorization){
-     const {
-    username,
-    password,
-    email,
-    balance,
-    manID,
-    phone,
-    referralCode,
-    referredBy,
-    referrer,
-    userToken,
-  } = req.body;
-  const token = jwt.sign(email, saltrounds);
-  if (userToken === token) {
+  if (VALIDATION_PASSWORD == req.headers.authorization) {
+    const {
+      username,
+      password,
+      email,
+      balance,
+      manID,
+      phone,
+      referralCode,
+      referredBy,
+      referrer,
+      verificationnumber,
+    } = req.body;
     const passwordHash = await bcrypt.hash(password, Number(saltrounds));
-    const sql_query = `INSERT INTO users
+    const find = `SELECT * FROM users WHERE verificationnumber=${verificationnumber}`;
+    conection.query(find, (err, result) => {
+      if (result[0]) {
+        const sql_query = `INSERT INTO users
  (username, password, email,
    balance,manID,phone,referralCode,
-   referredBy,referrer)
+   referredBy,referrer,verificationnumber)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
@@ -110,52 +120,50 @@ if(VALIDATION_PASSWORD==req.headers.authorization){
      '${phone}',
      '${referralCode}',
      '${referredBy}',
-     '${referrer}');`;
-    const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
-    const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
-    conection.query(existingUserName, (err, rows, fields) => {
-      if (rows.length) {
-        res.send("username already taken");
-      } else {
-        conection.query(existingUserEmail, (err, rows, fields) => {
+     '${referrer}',NULL);`;
+        const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
+        const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
+        conection.query(existingUserName, (err, rows, fields) => {
           if (rows.length) {
-            res.send("email already taken");
+            res.send("username already taken");
           } else {
-            conection.query(sql_query, (err, result) => {
-              if (err) res.send(err.message);
-              res.send(result);
+            conection.query(existingUserEmail, (err, rows, fields) => {
+              if (rows.length) {
+                res.send("email already taken");
+              } else {
+                conection.query(sql_query, (err, result) => {
+                  if (err) res.send(err.message);
+                  res.send(result);
+                });
+              }
             });
           }
         });
+      } else {
+        res.send("verification failed");
       }
     });
   } else {
-    res.send("verification failed");
-  }
-}else{
     res.status(401).send("you have no permission to this address");
-}
- 
+  }
 });
-
 usersRouter.put("/:id", async (req, res) => {
-    if(VALIDATION_PASSWORD==req.headers.authorization){
- 
-  const id = req.params.id;
-  const {
-    username,
-    password,
-    email,
-    balance,
-    manID,
-    phone,
-    referralCode,
-    referredBy,
-    referrer,
-  } = req.body;
-  const passwordHash = await bcrypt.hash(password, Number(saltrounds));
-  const existingUserName = `SELECT *  FROM users WHERE id!="${id}" AND username ="${username}" OR email ="${email}" AND id!="${id}"`;
-  const sql_query = `UPDATE users
+  if (VALIDATION_PASSWORD == req.headers.authorization) {
+    const id = req.params.id;
+    const {
+      username,
+      password,
+      email,
+      balance,
+      manID,
+      phone,
+      referralCode,
+      referredBy,
+      referrer,
+    } = req.body;
+    const passwordHash = await bcrypt.hash(password, Number(saltrounds));
+    const existingUserName = `SELECT *  FROM users WHERE id!="${id}" AND username ="${username}" OR email ="${email}" AND id!="${id}"`;
+    const sql_query = `UPDATE users
    set username="${username}",
     password="${passwordHash}",
      email="${email}", 
@@ -166,78 +174,12 @@ usersRouter.put("/:id", async (req, res) => {
      ,referredBy="${referredBy}"
      ,referrer="${referrer}"
      WHERE id = ${req.params.id}`;
-  conection.query(existingUserName, (err, result) => {
-    if (result.length !== 0 && result[0]?.username == username) {
-      res.send("username already taken");
-    } else if (result.length !== 0 && result[0]?.email == email) {
-      res.send("email already taken");
-    } else {
-      conection.query(sql_query, (err, result) => {
-        if (err) res.send(err.message);
-        res.send(result);
-      });
-    }
-  });}else{
-    res.status(401).send("you have no permission to this address");
-  }
-});
-
-usersRouter.delete("/:id", async (req, res) => {
-    if(VALIDATION_PASSWORD==req.headers.authorization){
-
-  const sql_query = `DELETE FROM users WHERE id = ${req.params.id}`;
-  conection.query(sql_query, (err, result) => {
-    if (err) throw err;
-    res.send(result);
-  });}else{
-    res.status(401).send("you have no permission to this address");
-  }
-});
-
-usersRouter.post("/forgotpassword", async (req, res) => {
-    if(VALIDATION_PASSWORD==req.headers.authorization){
-
-  const { email, currentUrl } = req.body;
-  const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
-  const token = jwt.sign(email, saltrounds);
-  conection.query(sql_query, (err, result) => {
-    if (result[0]) {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: "forverifyemailfromnode@gmail.com",
-          pass: "irtednvaqwoilawb",
-        },
-      });
-      const MailOptions = {
-        from: "forverifyemailfromnode@gmail.com",
-        to: req.body.email,
-        subject: "verify your email",
-        html: `<a href="${currentUrl}/${token}">Verify your email</a>`,
-        text: "test",
-      };
-      transporter.sendMail(MailOptions, () => {
-        res.send("email sent");
-      });
-    } else {
-      res.send("email not found");
-    }
-  });}else{
-    res.status(401).send("you have no permission to this address");
-  }
-});
-
-usersRouter.put("/forgotpassword/verify/:id", async (req, res) => {
-    if(VALIDATION_PASSWORD==req.headers.authorization){
-  const { email } = req.body;
-  const token = jwt.sign(email, saltrounds);
-  if (req.params.id == token) {
-    const find = `SELECT * FROM users WHERE id = "${req.params.id}"`;
-    const { password } = req.body;
-    const passwordHash = await bcrypt.hash(password, Number(saltrounds));
-    const sql_query = `UPDATE users set password="${passwordHash}"`;
-    conection.query(find, (err, result) => {
-      if (result[0]) {
+    conection.query(existingUserName, (err, result) => {
+      if (result.length !== 0 && result[0]?.username == username) {
+        res.send("username already taken");
+      } else if (result.length !== 0 && result[0]?.email == email) {
+        res.send("email already taken");
+      } else {
         conection.query(sql_query, (err, result) => {
           if (err) res.send(err.message);
           res.send(result);
@@ -245,8 +187,76 @@ usersRouter.put("/forgotpassword/verify/:id", async (req, res) => {
       }
     });
   } else {
-    res.send("email address incorect");
-  }}else{
+    res.status(401).send("you have no permission to this address");
+  }
+});
+
+usersRouter.delete("/:id", async (req, res) => {
+  if (VALIDATION_PASSWORD == req.headers.authorization) {
+    const sql_query = `DELETE FROM users WHERE id = ${req.params.id}`;
+    conection.query(sql_query, (err, result) => {
+      if (err) throw err;
+      res.send(result);
+    });
+  } else {
+    res.status(401).send("you have no permission to this address");
+  }
+});
+
+usersRouter.post("/forgotpassword", async (req, res) => {
+  if (VALIDATION_PASSWORD == req.headers.authorization) {
+    const { email } = req.body;
+    const random = Math.floor(100000 + Math.random() * 900000);
+    const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
+    conection.query(sql_query, (err, result) => {
+      if (result[0]) {
+        const update = `UPDATE users set verificationnumber="${random}" WHERE email = "${email}"`;
+        conection.query(update, (err, result) => {
+          if (err) throw err;
+          res.send(result);
+        });
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: "forverifyemailfromnode@gmail.com",
+            pass: "irtednvaqwoilawb",
+          },
+        });
+        const MailOptions = {
+          from: "forverifyemailfromnode@gmail.com",
+          to: req.body.email,
+          subject: "verify your email",
+          text: random,
+        };
+        transporter.sendMail(MailOptions, () => {
+          res.send("email sent");
+        });
+      } else {
+        res.send("email not found");
+      }
+    });
+  } else {
+    res.status(401).send("you have no permission to this address");
+  }
+});
+
+usersRouter.put("/forgotpassword/verify", async (req, res) => {
+  if (VALIDATION_PASSWORD == req.headers.authorization) {
+    const { verificationnumber, password } = req.body;
+    const passwordHash = await bcrypt.hash(password, Number(saltrounds));
+    const sql_query = `SELECT * FROM users WHERE verificationnumber=${verificationnumber}`;
+    const update = `UPDATE users set password="${passwordHash}",verificationnumber=NULL where verificationnumber=${verificationnumber}`;
+    conection.query(sql_query, (err, result) => {
+      if (result[0]) {
+        conection.query(update, (err, result) => {
+          if (err) throw err;
+          res.send(result);
+        });
+      } else {
+        res.send("incorect verification code");
+      }
+    });
+  } else {
     res.status(401).send("you have no permission to this address");
   }
 });
