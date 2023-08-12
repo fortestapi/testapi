@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { PORT, database, password, user } from "./utils/config.js";
+import { PORT, database, host, password, user } from "./utils/config.js";
 import usersRouter from "./controllers/users.js";
 import giftsRouter from "./controllers/gifts.js";
 import casesRouter from "./controllers/cases.js"
@@ -8,11 +8,12 @@ import transactionsRouter from "./controllers/transactions.js";
 import mysql2 from 'mysql2'
 
 export const conection = mysql2.createConnection({
-  host: "localhost",
-  user:user,
+  host: host,
+  user: user,
   password: password,
   database: database,
 });
+console.log(database)
 
 conection.connect((err,) =>{
   if(err)throw err

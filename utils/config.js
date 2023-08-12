@@ -10,10 +10,12 @@ const {
   user,
   password,
   database,
+  host,
 } = process.env;
 
 export {
   MONGODB_URI,
+  host,
   PORT,
   VALIDATION_PASSWORD,
   saltrounds,
