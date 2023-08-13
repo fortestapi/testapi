@@ -40,12 +40,20 @@ usersRouter.post("/login", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const { username, password } = req.body;
-      const findUser = `SELECT * FROM users WHERE username = "${username}" AND password = "${password}"`;
+      const findUser = `SELECT * FROM users WHERE username = "${username}"`;
       conection.query(findUser, async (err, result) => {
         if (result.length) {
-          res.send("login success");
+          const passwordCorrect = await bcrypt.compare(
+            password,
+            result[0]?.password
+          );
+          if (passwordCorrect) {
+            res.send("login success");
+          } else {
+            res.status(401).send("username or password incorrect");
+          }
         } else {
-          res.status(401).send("username or password incorrect");
+          res.send("username or password incorrect");
         }
       });
     } catch (err) {
@@ -63,7 +71,7 @@ usersRouter.post("/verify", async (req, res) => {
       const random = Math.floor(100000 + Math.random() * 900000).toString();
       const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
-        res.send("email sent successfully");
+          res.send("email sent successfully");
       });
       const transporter = nodemailer.createTransport({
         service: "gmail",
