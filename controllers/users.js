@@ -42,7 +42,7 @@ usersRouter.post("/login", async (req, res) => {
       const { username, password } = req.body;
       const findUser = `SELECT * FROM users WHERE username = "${username}"`;
       conection.query(findUser, async (err, result) => {
-        if (result.length) {
+        if (result?.length) {
           const passwordCorrect = await bcrypt.compare(
             password,
             result[0]?.password
