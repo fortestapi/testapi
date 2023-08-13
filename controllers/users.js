@@ -48,7 +48,7 @@ usersRouter.post("/login", async (req, res) => {
             result[0]?.password
           );
           if (passwordCorrect) {
-            res.status(200).send("login success");
+            res.send("login success");
           } else {
             res.status(401).send("username or password incorrect");
           }
