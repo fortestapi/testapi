@@ -13,7 +13,6 @@ export const conection = mysql2.createConnection({
   password: password,
   database: database,
 });
-console.log(database)
 
 conection.connect((err,) =>{
   if(err)throw err
