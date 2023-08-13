@@ -42,7 +42,7 @@ transactionsRouter.post("/", async (req, res) => {
        const { userId, type, amount, timestamp } = req.body;
     const sql_query = `INSERT INTO transactions (userId, type, amount, timestamp) VALUES ('${userId}', '${type}', '${amount}', '${timestamp}');`;
     conection.query(sql_query, (err, result) => {
-      res.send(result);
+      res.status(201).send(result);
     });
     }catch(error){
       res.send(error.message);

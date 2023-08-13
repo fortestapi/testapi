@@ -41,7 +41,7 @@ casesRouter.post("/", async (req, res) => {
       const { name, description, cost, items } = req.body;
       const sql_query = `INSERT INTO cases (name, description, cost, items) VALUES ('${name}', '${description}', '${cost}', '${items}');`;
       conection.query(sql_query, (err, result) => {
-        res.send(result);
+        res.status(201).send(result);
       });
     } catch (error) {
       res.send(error.message);

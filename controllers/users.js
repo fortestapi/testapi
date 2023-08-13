@@ -50,7 +50,7 @@ usersRouter.post("/login", async (req, res) => {
           if (passwordCorrect) {
             res.send("login success");
           } else {
-            res.send("username or password incorrect");
+            res.status(401).send("username or password incorrect");
           }
         } else {
           res.send("username or password incorrect");
@@ -157,7 +157,7 @@ usersRouter.post("/", async (req, res) => {
               res.send("email already taken");
             } else {
               conection.query(sql_query, (err, result) => {
-                res.send(result);
+                res.status(201).send(result);
               });
             }
           });

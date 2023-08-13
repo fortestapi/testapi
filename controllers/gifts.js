@@ -42,7 +42,7 @@ giftsRouter.post("/", async (req, res) => {
         const { name, description, value, imageUrl } = req.body;
     const sql_query = `INSERT INTO gifts (name, description, value, imageUrl) VALUES ('${name}', '${description}', '${value}', '${imageUrl}');`;
     conection.query(sql_query, (err, result) => {
-      res.send(result);
+      res.status(201).send(result);
     });
     }catch(error){
       res.send(error.message);
