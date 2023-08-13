@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 import cors from "cors";
 import { PORT, database, host, password, user } from "./utils/config.js";
 import usersRouter from "./controllers/users.js";
@@ -22,8 +21,8 @@ conection.connect((err,) =>{
 
 const app = express();
 app.use(cors());
-// app.use(express.json());
-app.use(bodyParser.json());
+app.use(express.json());
+
 
 app.use("/api/users", usersRouter);
 app.use("/api/gifts", giftsRouter);
