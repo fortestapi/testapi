@@ -11,6 +11,8 @@ const {
   password,
   database,
   host,
+  TW_ID,
+  TW_TOKEN,
 } = process.env;
 
 export {
@@ -22,4 +24,6 @@ export {
   user,
   password,
   database,
+  TW_ID,
+  TW_TOKEN,
 };
