@@ -3,6 +3,7 @@ import { VALIDATION_PASSWORD, saltrounds } from "../utils/config.js";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { conection } from "../index.js";
+import jwt from "jsonwebtoken";
 
 const usersRouter = express.Router();
 
