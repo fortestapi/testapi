@@ -303,4 +303,15 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
   }
 });
 
+usersRouter.post("/checklogin", (req, res) => {
+  const sql_query = `select * from users where token="${req.body.token}"`;
+  conection.query(sql_query, (err, result) => {
+    if (result[0]) {
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  });
+});
+
 export default usersRouter;
