@@ -53,7 +53,7 @@ usersRouter.post("/login", async (req, res) => {
             const token = jwt.sign(userForToken, saltrounds).toString();
             const whriteToken = `UPDATE users set token="${token}" WHERE username = "${username}"`;
             conection.query(whriteToken);
-            res.send(token);
+            res.json({token:token});
           } else {
             res.status(401).send("username or password incorrect");
           }
