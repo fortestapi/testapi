@@ -49,7 +49,7 @@ usersRouter.post("/login", async (req, res) => {
           );
           if (passwordCorrect) {
             const userForToken={password,username}
-            const token = jwt.sign(userForToken, saltrounds);
+            const token = jwt.sign(userForToken, saltrounds).toString()
             res.send(token);
           } else {
             res.status(401).send("username or password incorrect");
