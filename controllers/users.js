@@ -49,8 +49,10 @@ usersRouter.post("/login", async (req, res) => {
             result[0]?.password
           );
           if (passwordCorrect) {
-            const userForToken={password,username}
-            const token = jwt.sign(userForToken, saltrounds).toString()
+            const userForToken = { password, username };
+            const token = jwt.sign(userForToken, saltrounds).toString();
+            const whriteToken = `UPDATE users set token="${token}" WHERE username = "${username}"`;
+            conection.query(whriteToken);
             res.send(token);
           } else {
             res.status(401).send("username or password incorrect");
@@ -74,7 +76,7 @@ usersRouter.post("/verify", async (req, res) => {
       const random = Math.floor(100000 + Math.random() * 900000).toString();
       const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
-          res.send("email sent successfully");
+        res.send("email sent successfully");
       });
       const transporter = nodemailer.createTransport({
         service: "gmail",
