@@ -25,7 +25,7 @@ usersRouter.get("/", async (req, res) => {
 usersRouter.get("/:id", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const sql_query = `SELECT * FROM users WHERE id = ${req.params.id}`;
+      const sql_query = `SELECT * FROM users WHERE id = "${req.params.id}"`;
       conection.query(sql_query, (err, result) => {
         if(result[0]){
            res.send(result);
