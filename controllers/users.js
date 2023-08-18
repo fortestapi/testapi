@@ -110,7 +110,7 @@ usersRouter.put("/verify", (req, res) => {
       conection.query(find, (err, result) => {
         if (result[0]) {
           const sql_query = `UPDATE users SET verificationnumber = NULL WHERE verificationnumber = ${verificationnumber}`;
-          conection.query(sql_query, (err, result) => {
+          conection.query(sql_query, () => {
             res.send("success");
           });
         } else {
@@ -154,11 +154,11 @@ usersRouter.post("/", async (req, res) => {
       const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
       const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
       conection.query(existingUserName, (err, rows, fields) => {
-        if (rows.length) {
+        if (rows?.length) {
           res.send("username already taken");
         } else {
           conection.query(existingUserEmail, (err, rows, fields) => {
-            if (rows.length) {
+            if (rows?.length) {
               res.send("email already taken");
             } else {
               conection.query(sql_query, (err, result) => {
