@@ -162,7 +162,7 @@ usersRouter.post("/", async (req, res) => {
               res.send("email already taken");
             } else {
               conection.query(sql_query, (err, result) => {
-                res.status(201).send('cwcw');
+                res.status(201).send(result);
               });
             }
           });
