@@ -22,12 +22,15 @@ usersRouter.get("/", async (req, res) => {
   }
 });
 
-usersRouter.get("/:id", async (req, res) => {
+usersRouter.get("/:token", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const sql_query = `SELECT * FROM users WHERE token = ${req.params.id}`;
+      const sql_query = `SELECT * FROM users WHERE token = ${req.params.token}`;
       conection.query(sql_query, (err, result) => {
-        res.send(result);
+        if(result[0]){
+           res.send(result);
+        }
+       res.send("user not found")
       });
     } catch (err) {
       res.send(err.message);
