@@ -25,7 +25,7 @@ usersRouter.get("/", async (req, res) => {
 usersRouter.get("/:id", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const sql_query = `SELECT * FROM users WHERE id = ${req.params.id}`;
+      const sql_query = `SELECT * FROM users WHERE token = ${req.params.id}`;
       conection.query(sql_query, (err, result) => {
         res.send(result);
       });
@@ -51,7 +51,7 @@ usersRouter.post("/login", async (req, res) => {
           if (passwordCorrect) {
             const userForToken = { password, username };
             const token = jwt.sign(userForToken, saltrounds).toString();
-            const whriteToken = `UPDATE users set token="${token}" WHERE username = "${username}"`;
+            const whriteToken = `UPDATE users set token="${token}" WHERE username ="${username}"`;
             conection.query(whriteToken);
             res.json(token);
           } else {
@@ -301,17 +301,6 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
   } else {
     res.status(401).send("you have no permission to this address");
   }
-});
-
-usersRouter.post("/checklogin", (req, res) => {
-  const sql_query = `select * from users where token="${req.body.token}"`;
-  conection.query(sql_query, (err, result) => {
-    if (result[0]) {
-      res.send(true);
-    } else {
-      res.send(false);
-    }
-  });
 });
 
 export default usersRouter;
