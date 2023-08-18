@@ -13,6 +13,7 @@ usersRouter.get("/", async (req, res) => {
       const sql_query = `SELECT * FROM users`;
       conection.query(sql_query, (err, result) => {
         res.json(result);
+        console.log(result)
       });
     } catch (err) {
       res.send(err.message);
