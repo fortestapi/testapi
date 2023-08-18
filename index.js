@@ -8,13 +8,13 @@ import transactionsRouter from "./controllers/transactions.js";
 import mysql2 from 'mysql2'
 
 export const conection = mysql2.createConnection({
-  host: host,
-  user: user,
-  password: password,
-  database: database,
+  host: "golden-strategy.com",
+  user: "goldenst_nodejs",
+  password: "FJ=fZ)08*In{",
+  database: "goldenst_nodejs",
   WaitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 });
 
 conection.connect((err,) =>{
