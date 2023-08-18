@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 const usersRouter = express.Router();
 
 usersRouter.get("/", async (req, res) => {
-  if (VALIDATION_PASSWORD == req.headers.authorization) {
+  // if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `SELECT * FROM users`;
       conection.query(sql_query, (err, result) => {
@@ -17,9 +17,9 @@ usersRouter.get("/", async (req, res) => {
     } catch (err) {
       res.send(err.message);
     }
-  } else {
-    res.status(401).send("you have no permission to this address");
-  }
+  // } else {
+  //   res.status(401).send("you have no permission to this address");
+  // }
 });
 
 usersRouter.get("/:id", async (req, res) => {
