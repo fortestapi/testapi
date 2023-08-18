@@ -29,8 +29,10 @@ usersRouter.get("/:token", async (req, res) => {
       conection.query(sql_query, (err, result) => {
         if(result[0]){
            res.send(result);
+        }else{
+           res.send("user not found")
         }
-       res.send("user not found")
+      
       });
     } catch (err) {
       res.send(err.message);
