@@ -12,9 +12,6 @@ export const conection = mysql2.createConnection({
   user: user,
   password: password,
   database: database,
-  WaitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
 });
 
 conection.connect((err,) =>{
