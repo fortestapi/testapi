@@ -27,11 +27,12 @@ usersRouter.get("/:token", async (req, res) => {
     try {
       const sql_query = `SELECT * FROM users WHERE token = "${req.params.token}"`;
       conection.query(sql_query, (err, result) => {
-        if (result[0]) {
-          res.send(result);
-        } else {
-          res.send("user not found");
+        if(result[0]){
+           res.send(result);
+        }else{
+           res.send("user not found")
         }
+      
       });
     } catch (err) {
       res.send(err.message);
@@ -246,50 +247,34 @@ usersRouter.delete("/:id", async (req, res) => {
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const { email, token } = req.body;
+        await transporter.sendMail(MailOptions);
+      const { email ,token} = req.body;
       const random = Math.floor(100000 + Math.random() * 900000).toString();
-
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: "forverifyemailfromnode@gmail.com",
-          pass: "irtednvaqwoilawb",
-        },
+      const sql_query = `SELECT * FROM users WHERE email = "${email}" AND token="${token}"`;
+      conection.query(sql_query, (err, result) => {
+        if (result[0]) {
+          const update = `UPDATE users set verificationnumber="${random}" WHERE email = "${email}"`;
+          const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+              user: "forverifyemailfromnode@gmail.com",
+              pass: "irtednvaqwoilawb",
+            },
+          });
+          const MailOptions = {
+            from: "forverifyemailfromnode@gmail.com",
+            to: email,
+            subject: "verify your email",
+            text:random,
+          };        
+          conection.query(update, (err, result) => {
+            res.send("email sent successfully");
+          });
+       
+        } else {
+          res.send("email not found");
+        }
       });
-      const MailOptions = {
-        from: "forverifyemailfromnode@gmail.com",
-        to: email,
-        subject: "verify your email",
-        text: random,
-      };
-     await transporter.sendMail(MailOptions);
-      res.send("email verified");
-
-      // const sql_query = `SELECT * FROM users WHERE email = "${email}" AND token="${token}"`;
-      // conection.query(sql_query, (err, result) => {
-      //   if (result[0]) {
-      //     const update = `UPDATE users set verificationnumber="${random}" WHERE email = "${email}"`;
-      //     const transporter = nodemailer.createTransport({
-      //       service: "gmail",
-      //       auth: {
-      //         user: "forverifyemailfromnode@gmail.com",
-      //         pass: "irtednvaqwoilawb",
-      //       },
-      //     });
-      //     const MailOptions = {
-      //       from: "forverifyemailfromnode@gmail.com",
-      //       to: email,
-      //       subject: "verify your email",
-      //       text:random,
-      //     };
-      //     transporter.sendMail(MailOptions);
-      //     conection.query(update, (err, result) => {
-      //       res.send("email sent successfully");
-      //     });
-      //   } else {
-      //     res.send("email not found");
-      //   }
-      // });
     } catch (error) {
       res.send(error.message);
     }
