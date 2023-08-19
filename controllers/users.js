@@ -115,7 +115,7 @@ usersRouter.put("/verify", (req, res) => {
         if (result[0]) {
           const sql_query = `UPDATE users SET verificationnumber = NULL WHERE verificationnumber = ${verificationnumber}`;
           conection.query(sql_query, () => {
-            res.send("success");
+            res.send("verifyed success");
           });
         } else {
           res.send("verification code incorrect");
