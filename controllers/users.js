@@ -96,7 +96,7 @@ usersRouter.post("/verify", async (req, res) => {
         subject: "verify your email",
         text: random,
       };
-      transporter.sendMail(MailOptions, () => {
+     await transporter.sendMail(MailOptions, () => {
         res.send("email sent");
       });
     } catch (error) {
