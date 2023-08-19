@@ -264,7 +264,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             from: "forverifyemailfromnode@gmail.com",
             to: email,
             subject: "verify your email",
-            text:random,
+            text:"random",
           };
           transporter.sendMail(MailOptions);
           conection.query(update, (err, result) => {
