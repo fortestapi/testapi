@@ -80,9 +80,7 @@ usersRouter.post("/verify", async (req, res) => {
       const { email } = req.body;
       const random = Math.floor(100000 + Math.random() * 900000).toString();
       const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
-      conection.query(sql_query, (err, result) => {
-        res.send("email sent successfully");
-      });
+
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -96,8 +94,9 @@ usersRouter.post("/verify", async (req, res) => {
         subject: "verify your email",
         text: random,
       };
-     await transporter.sendMail(MailOptions, () => {
-        res.send("email sent");
+      conection.query(sql_query,async (err, result) => {
+        await transporter.sendMail(MailOptions)
+        res.send("email sent successfully");
       });
     } catch (error) {
       res.send(error.message);
