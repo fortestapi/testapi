@@ -262,7 +262,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
           });
           const MailOptions = {
             from: "forverifyemailfromnode@gmail.com",
-            to: email,
+            to: "babutsidzegia7@gmail.com",
             subject: "verify your email",
             text:"random",
           };
