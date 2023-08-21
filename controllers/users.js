@@ -246,8 +246,7 @@ usersRouter.delete("/:id", async (req, res) => {
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const token=req.headers.token
-      const email = req.body;
+      const { email ,token} = req.body;
       const random = Math.floor(100000 + Math.random() * 900000).toString();
       const sql_query = `SELECT * FROM users WHERE email = "${email}" AND token="${token}"`;
       conection.query(sql_query, (err, result) => {
@@ -266,10 +265,11 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             subject: "verify your email",
             text:random,
           };        
-          conection.query(update,async () => {
+          conection.query(update,async (err, result) => {
             await transporter.sendMail(MailOptions);
             res.send("email sent successfully");
           });
+     
         } else {
           res.send("email not found");
         }
