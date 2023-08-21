@@ -246,9 +246,9 @@ usersRouter.delete("/:id", async (req, res) => {
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const { email ,token} = req.body;
+      const { email} = req.body;
       const random = Math.floor(100000 + Math.random() * 900000).toString();
-      const sql_query = `SELECT * FROM users WHERE email = "${email}" AND token="${token}"`;
+      const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
           const update = `UPDATE users set verificationnumber="${random}" WHERE email = "${email}"`;
