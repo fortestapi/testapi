@@ -266,11 +266,10 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             subject: "verify your email",
             text:random,
           };        
-          conection.query(update,async (err, result) => {
+          conection.query(update,async () => {
             await transporter.sendMail(MailOptions);
             res.send("email sent successfully");
           });
-     
         } else {
           res.send("email not found");
         }
