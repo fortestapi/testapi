@@ -283,7 +283,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
 usersRouter.put("/forgotpassword/verify", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const { verificationCode, newPassword} = req.body;
+      const { verificationCode, newPassword, confirmPassword } = req.body;
       const passwordHash = await bcrypt.hash(newPassword, Number(saltrounds));
       const sql_query = `SELECT * FROM users WHERE verificationnumber=${verificationCode}`;
       const update = `UPDATE users set
