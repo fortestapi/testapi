@@ -283,12 +283,12 @@ usersRouter.post("/forgotpassword", async (req, res) => {
 usersRouter.put("/forgotpassword/verify", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const { verificationnumber, password } = req.body;
-      const passwordHash = await bcrypt.hash(password, Number(saltrounds));
-      const sql_query = `SELECT * FROM users WHERE verificationnumber=${verificationnumber}`;
+      const { verificationCode, newPassword, confirmPassword} = req.body;
+      const passwordHash = await bcrypt.hash(newPassword, Number(saltrounds));
+      const sql_query = `SELECT * FROM users WHERE verificationnumber=${verificationCode}`;
       const update = `UPDATE users set
      password="${passwordHash}",
-     verificationnumber=NULL where verificationnumber=${verificationnumber}`;
+     verificationnumber=NULL where verificationnumber=${verificationCode}`;
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
           conection.query(update, (err, result) => {
