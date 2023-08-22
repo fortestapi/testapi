@@ -11,7 +11,7 @@ usersRouter.get("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `SELECT * FROM users`;
-     await conection.query(sql_query, (err, result) => {
+      conection.query(sql_query, (err, result) => {
         res.send(result);
       });
     } catch (err) {
