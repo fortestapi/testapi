@@ -27,12 +27,11 @@ usersRouter.get("/:token", async (req, res) => {
     try {
       const sql_query = `SELECT * FROM users WHERE token = "${req.params.token}"`;
       conection.query(sql_query, (err, result) => {
-        if(result[0]){
-           res.send(result);
-        }else{
-           res.send("user not found")
+        if (result[0]) {
+          res.send(result);
+        } else {
+          res.send("user not found");
         }
-      
       });
     } catch (err) {
       res.send(err.message);
@@ -94,8 +93,8 @@ usersRouter.post("/verify", async (req, res) => {
         subject: "verify your email",
         text: random,
       };
-      conection.query(sql_query,async (err, result) => {
-        await transporter.sendMail(MailOptions)
+      conection.query(sql_query, async (err, result) => {
+        await transporter.sendMail(MailOptions);
         res.send("email sent successfully");
       });
     } catch (error) {
@@ -246,7 +245,7 @@ usersRouter.delete("/:id", async (req, res) => {
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const { email} = req.body;
+      const { email } = req.body;
       const random = Math.floor(100000 + Math.random() * 900000).toString();
       const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
@@ -263,13 +262,12 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             from: "forverifyemailfromnode@gmail.com",
             to: email,
             subject: "verify your email",
-            text:random,
-          };        
-          conection.query(update,async (err, result) => {
+            text: random,
+          };
+          conection.query(update, async (err, result) => {
             await transporter.sendMail(MailOptions);
             res.send("email sent successfully");
           });
-     
         } else {
           res.send("email not found");
         }
