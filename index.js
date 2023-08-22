@@ -8,10 +8,10 @@ import transactionsRouter from "./controllers/transactions.js";
 import mysql2 from 'mysql2'
 
 export const conection = mysql2.createConnection({
-  host,
-  user,
-  password,
-  database,
+  host: host,
+  user: user,
+  password: password,
+  database: database,
 });
 
 conection.connect((err,) =>{
