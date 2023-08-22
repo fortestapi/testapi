@@ -292,7 +292,7 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
           conection.query(update, (err, result) => {
-            res.send(req.body);
+            res.send("verifyed successfully");
           });
         } else {
           res.send("incorect verification code");
