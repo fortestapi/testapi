@@ -79,7 +79,6 @@ usersRouter.post("/verify", async (req, res) => {
       const { email } = req.body;
       const random = Math.floor(100000 + Math.random() * 900000).toString();
       const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
-
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -251,6 +250,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
           const update = `UPDATE users set verificationnumber="${random}" WHERE email = "${email}"`;
+           const updateIN2MInutes = `UPDATE users set verificationnumber=NULL WHERE email = "${email}"`;
           const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -266,6 +266,9 @@ usersRouter.post("/forgotpassword", async (req, res) => {
           };
           conection.query(update, async (err, result) => {
             await transporter.sendMail(MailOptions);
+            setTimeout(() => {
+              conection.query(updateIN2MInutes);
+            }, 120000);
             res.send("email sent successfully");
           });
         } else {
