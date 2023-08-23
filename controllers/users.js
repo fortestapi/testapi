@@ -120,7 +120,7 @@ usersRouter.put("/verify", (req, res) => {
             res.send("verifyed success");
           });
         } else {
-          res.send("verification code incorrect");
+          res.send("verification code incorrect or time has passed");
         }
       });
     } catch (error) {
@@ -302,7 +302,7 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
             res.send("verifyed successfully");
           });
         } else {
-          res.send("incorect verification code");
+          res.send("verification code incorect or time has passed");
         }
       });
     } catch (error) {
