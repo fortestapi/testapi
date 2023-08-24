@@ -136,10 +136,10 @@ usersRouter.post("/", async (req, res) => {
         email,
         manID,
         phone,
+        referralCode,
         referredBy,
         referrer,
       } = req.body;
-       const referralCode = jwt.sign(username, saltrounds)
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,
