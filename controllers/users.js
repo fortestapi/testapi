@@ -136,7 +136,6 @@ usersRouter.post("/", async (req, res) => {
         email,
         manID,
         phone,
-        referralCode,
         referredBy,
         referrer,
       } = req.body;
