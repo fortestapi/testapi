@@ -130,26 +130,27 @@ usersRouter.put("/verify", (req, res) => {
 usersRouter.post("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-
       const {
         username,
         password,
         email,
         manID,
         phone,
+        referralCode,
         referredBy,
         referrer,
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,
-   manID,phone,
+   manID,phone,referralCode,
    referredBy,referrer)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
      '${manID}',
      '${phone}',
+     '${referralCode}',
      '${referredBy}',
      '${referrer}');`;
       const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
