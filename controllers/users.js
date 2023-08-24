@@ -139,16 +139,18 @@ usersRouter.post("/", async (req, res) => {
         referredBy,
         referrer,
       } = req.body;
+       const referralCode = jwt.sign(username, saltrounds)
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,
-   manID,phone,
+   manID,phone,referralCode,
    referredBy,referrer)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
      '${manID}',
      '${phone}',
+     '${referralCode}',
      '${referredBy}',
      '${referrer}');`;
       const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
