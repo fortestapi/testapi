@@ -22,10 +22,10 @@ usersRouter.get("/", async (req, res) => {
   }
 });
 
-usersRouter.get("/:token", async (req, res) => {
+usersRouter.get("/:id", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const sql_query = `SELECT * FROM users WHERE token = "${req.params.token}"`;
+      const sql_query = `SELECT * FROM users WHERE id = "${req.params.id}"`;
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
           res.send(result);
@@ -163,7 +163,7 @@ usersRouter.post("/", async (req, res) => {
             if (rows?.length) {
               res.send("email already taken");
             } else {
-              conection.query(sql_query, (err, result) => {
+              conection.query(sql_query,async (err, result) => {
                 res.status(201).send(result);
               });
             }
@@ -191,7 +191,7 @@ usersRouter.put("/:id", async (req, res) => {
         phone,
         referralCode,
         referredBy,
-        referrer,
+        referrer
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
