@@ -141,7 +141,12 @@ usersRouter.post("/", async (req, res) => {
         userreferalcode,
         referredBy,
       } = req.body;
-      // const referredBy = `SELECT * FROM users WHERE  referralCode= "${username}"`;
+       const findreferredBy = `SELECT * FROM users WHERE  userreferalcode= "${referralCode}"`;
+      conection.query(findreferredBy, (err, result) => {
+      if(result[0]){
+referredBy=result[0].username
+      }
+      });
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,
