@@ -130,7 +130,7 @@ usersRouter.put("/verify", (req, res) => {
 usersRouter.post("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const {
+      let {
         username,
         password,
         email,
