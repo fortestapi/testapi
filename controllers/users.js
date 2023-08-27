@@ -192,6 +192,7 @@ usersRouter.put("/:id", async (req, res) => {
         referralCode,
         referredBy,
         referrer,
+        reward,
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
@@ -205,7 +206,8 @@ usersRouter.put("/:id", async (req, res) => {
      phone="${phone}",
      referralCode="${referralCode}"
      ,referredBy="${referredBy}"
-     ,referrer="${referrer}"
+     ,referrer="${referrer}",
+     reward="${reward}"
      WHERE id = ${req.params.id}`;
       conection.query(existingUserName, (err, result) => {
         if (result.length !== 0 && result[0]?.username == username) {
