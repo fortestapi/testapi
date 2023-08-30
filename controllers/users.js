@@ -137,16 +137,11 @@ usersRouter.post("/", async (req, res) => {
         manID,
         phone,
         referralCode,
-        referrer,
         userreferalcode,
         referredBy,
+        referrer,
       } = req.body;
-       const findreferredBy = `SELECT * FROM users WHERE  userreferalcode= "${referralCode}"`;
-      conection.query(findreferredBy, (err, result) => {
-      if(result[0]){
-referredBy=result[0].username
-      }
-      });
+      const findreferredBy = `SELECT * FROM users WHERE  userreferalcode= "${referralCode}"`;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,
@@ -171,8 +166,40 @@ referredBy=result[0].username
             if (rows?.length) {
               res.send("email already taken");
             } else {
-              conection.query(sql_query,async (err, result) => {
-                res.status(201).send(result);
+              conection.query(findreferredBy, (err, result) => {
+                if (result[0]) {
+                  if (result[0].referredBy !== undefined) {
+                    const newreffered = result[0].referredBy;
+                    const newreferrer = result[0].username;
+                    let test = [];
+                    if ((result[0].referrer !== "undefined") | null) {
+                      test = result[0].referrer.split(",");
+                    }
+                    test.push(newreffered);
+                    const ttt = test.filter((result) => result !== "undefined");
+                    const ttcwt = ttt.filter((result) => result !== "");
+                    const newsql_query = `INSERT INTO users
+ (username, password, email,
+   manID,phone,referralCode,
+   referredBy,referrer,userreferalcode)
+    VALUES ('${username}',
+     '${passwordHash}', 
+     '${email}', 
+     '${manID}',
+     '${phone}',
+     '${referralCode}',
+     '${newreferrer}',
+     '${ttcwt}',
+     '${userreferalcode}');`;
+                    conection.query(newsql_query, async (err, result) => {
+                      res.status(201).send(result);
+                    });
+                  }
+                } else {
+                  conection.query(sql_query, async (err, result) => {
+                    res.status(201).send(result);
+                  });
+                }
               });
             }
           });
