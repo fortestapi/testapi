@@ -11,7 +11,32 @@ usersRouter.get("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `SELECT * FROM users`;
-      conection.query(sql_query, (err, result) => {
+      conection.query(sql_query, async (err, result) => {
+        const test = result.filter((result) => result.referrer !== "");
+        const response = [];
+        test.map((item) => {
+          if (item.referredBy == "undefined") {
+            item.referredBy = "";
+            if (item.referrer == "undefined") {
+              item.referrer = "";
+              response.push(item);
+            } else {
+              if (item.referrer == "") {
+                response.push(item);
+              } else {
+                item.referrer = item.referrer.split(",")
+                response.push(item);
+              }
+            }
+          }
+          else if(item.referrer==''){
+                response.push(item);
+          }else{
+             item.referrer = item.referrer.split(",");
+          response.push(item);
+          }
+         
+        });
         res.send(result);
       });
     } catch (err) {
@@ -26,9 +51,19 @@ usersRouter.get("/:token", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `SELECT * FROM users WHERE token = "${req.params.token}"`;
-      conection.query(sql_query, (err, result) => {
+      conection.query(sql_query, async (err, result) => {
         if (result[0]) {
-          res.send(result);
+          if (result[0].referrer == "undefined") {
+            result[0].referrer = "";
+            if (result[0].referredBy == "undefined") {
+              result[0].referredBy = "";
+              res.send(result[0]);
+            } else {
+              res.send(result[0]);
+            }
+          } else {
+            res.send(result[0]);
+          }
         } else {
           res.send("user not found");
         }
@@ -168,12 +203,12 @@ usersRouter.post("/", async (req, res) => {
             } else {
               conection.query(findreferredBy, (err, result) => {
                 if (result[0]) {
-                  if (result[0].referredBy !== undefined) {
-                    const newreffered = result[0].referredBy;
-                    const newreferrer = result[0].username;
+                  if (result[0]?.referredBy !== undefined) {
+                    const newreffered = result[0]?.referredBy;
+                    const newreferrer = result[0]?.username;
                     let test = [];
                     if ((result[0].referrer !== "undefined") | null) {
-                      test = result[0].referrer.split(",");
+                      test = result[0]?.referrer.split(",");
                     }
                     test.push(newreffered);
                     const ttt = test.filter((result) => result !== "undefined");
