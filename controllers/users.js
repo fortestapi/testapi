@@ -161,7 +161,6 @@ usersRouter.put("/verify", (req, res) => {
   }
 });
 
-
 usersRouter.post("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
@@ -175,7 +174,10 @@ usersRouter.post("/", async (req, res) => {
         referredBy,
         referrer,
       } = req.body;
-      const userreferalcode = seedrandom(username).quick().toString().slice(2);
+      const test = username + email + password;
+      const testt =
+        seedrandom(test).quick().toString().slice(2) + Math.random();
+      const userreferalcode = testt.replace(".", "");
       const findreferredBy = `SELECT * FROM users WHERE  userreferalcode = "${referralCode}"`;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
