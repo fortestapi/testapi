@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { conection } from "../index.js";
 import jwt from "jsonwebtoken";
+import seedrandom from "seedrandom";
 
 const usersRouter = express.Router();
 
@@ -24,18 +25,16 @@ usersRouter.get("/", async (req, res) => {
               if (item.referrer == "") {
                 response.push(item);
               } else {
-                item.referrer = item.referrer.split(",")
+                item.referrer = item.referrer.split(",");
                 response.push(item);
               }
             }
+          } else if (item.referrer == "") {
+            response.push(item);
+          } else {
+            item.referrer = item.referrer.split(",");
+            response.push(item);
           }
-          else if(item.referrer==''){
-                response.push(item);
-          }else{
-             item.referrer = item.referrer.split(",");
-          response.push(item);
-          }
-         
         });
         res.send(result);
       });
@@ -127,7 +126,7 @@ usersRouter.post("/verify", async (req, res) => {
         subject: "verify your email",
         text: random,
       };
-      conection.query(sql_query, async (err, result) => {
+      conection.query(sql_query, async () => {
         await transporter.sendMail(MailOptions);
         res.send("email sent successfully");
       });
@@ -162,6 +161,7 @@ usersRouter.put("/verify", (req, res) => {
   }
 });
 
+
 usersRouter.post("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
@@ -172,11 +172,11 @@ usersRouter.post("/", async (req, res) => {
         manID,
         phone,
         referralCode,
-        userreferalcode,
         referredBy,
         referrer,
       } = req.body;
-      const findreferredBy = `SELECT * FROM users WHERE  userreferalcode= "${referralCode}"`;
+      const userreferalcode = seedrandom(username).quick().toString().slice(2);
+      const findreferredBy = `SELECT * FROM users WHERE  userreferalcode = "${referralCode}"`;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,
