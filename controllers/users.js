@@ -112,7 +112,7 @@ usersRouter.put("/verify", (req, res) => {
       const find = `SELECT * FROM users WHERE verificationnumber = ${verificationnumber}`;
       conection.query(find, (err, result) => {
         if (result[0]) {
-          const sql_query = `UPDATE users SET verificationnumber = NULL WHERE verificationnumber = ${verificationnumber}`;
+          const sql_query = `UPDATE users set verifyed="true",verificationnumber = NULL WHERE verificationnumber = ${verificationnumber}`;
           conection.query(sql_query, () => {
             res.send("verifyed success");
           });
@@ -131,7 +131,7 @@ usersRouter.put("/verify", (req, res) => {
 usersRouter.post("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      let referalscount = ["c"];
+      let referalscount = [];
       let referredBy = "";
       let { username, password, email, manID, phone, referralCode } = req.body;
       const test = username + email + password;
@@ -164,10 +164,10 @@ usersRouter.post("/", async (req, res) => {
               conection.query(findreferredBy, (err, result) => {
                 if (result[0]) {
                   let ttg = [];
-                  if (result[0].referalscount !== null |"null") {
-                    ttg = result[0].referalscount.split(",")
+                  if ((result[0].referalscount !== null) | "null") {
+                    ttg = result[0].referalscount.split(",");
                   }
-                  ttg.push(username)
+                  ttg.push(username);
                   referalscount = ttg;
                   console.log(referalscount);
                   referredBy = result[0].username;
@@ -279,7 +279,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
       const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
-          const update = `UPDATE users set verificationnumber="${random}" WHERE email = "${email}"`;
+          const update = `UPDATE users set passverificationnumber="${random}" WHERE email = "${email}"`;
           const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -312,12 +312,12 @@ usersRouter.post("/forgotpassword", async (req, res) => {
 usersRouter.put("/forgotpassword/verify", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      const { verificationCode, newPassword, confirmPassword } = req.body;
+      const { verificationCode, newPassword } = req.body;
       const passwordHash = await bcrypt.hash(newPassword, Number(saltrounds));
-      const sql_query = `SELECT * FROM users WHERE verificationnumber=${verificationCode}`;
+      const sql_query = `SELECT * FROM users WHERE passverificationnumber=${verificationCode}`;
       const update = `UPDATE users set
      password="${passwordHash}",
-     verificationnumber=NULL where verificationnumber=${verificationCode}`;
+     passverificationnumber=NULL where passverificationnumber=${verificationCode}`;
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
           conection.query(update, (err, result) => {
