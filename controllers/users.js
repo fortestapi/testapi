@@ -1,5 +1,5 @@
 import express from "express";
-import { VALIDATION_PASSWORD, saltrounds, user } from "../utils/config.js";
+import { VALIDATION_PASSWORD, saltrounds } from "../utils/config.js";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { conection } from "../index.js";
