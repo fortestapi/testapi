@@ -13,7 +13,7 @@ usersRouter.get("/", async (req, res) => {
     try {
       const sql_query = `SELECT * FROM users`;
       conection.query(sql_query, (err, result) => {
-        res.send(result);
+        res.send(result)
       });
     } catch (err) {
       res.send(err.message);
@@ -291,7 +291,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             from: "forverifyemailfromnode@gmail.com",
             to: email,
             subject: "verify your email",
-            text: random,
+            text: random+result[0].id,
           };
           conection.query(update, async (err, result) => {
             await transporter.sendMail(MailOptions);
