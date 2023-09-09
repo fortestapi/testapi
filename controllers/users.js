@@ -141,7 +141,7 @@ usersRouter.post("/", async (req, res) => {
     try {
       let referalscount = [];
       let referredBy = "";
-      let { username, password, email, manID, phone, referralCode } = req.body;
+      let { username, password, email, referralCode } = req.body;
       const test = username + email + password;
       const testt = seedrandom(test).quick().toString().slice(2);
       const userreferalcode = testt.replace(".", "");
@@ -149,13 +149,11 @@ usersRouter.post("/", async (req, res) => {
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,
-   manID,phone,referralCode,
+   referralCode,
    referredBy,userreferalcode)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
-     '${manID}',
-     '${phone}',
      '${referralCode}',
      '${referredBy}',
      '${userreferalcode}');`;
@@ -182,13 +180,11 @@ usersRouter.post("/", async (req, res) => {
                   const updatequerry = `UPDATE users SET referalscount="${referalscount}" WHERE userreferalcode="${referralCode}"`;
                   const newsql_query = `INSERT INTO users
  (username, password, email,
-   manID,phone,referralCode,
+   referralCode,
    referredBy,userreferalcode)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
-     '${manID}',
-     '${phone}',
      '${referralCode}',
      '${referredBy}',
      '${userreferalcode}');`;
@@ -224,8 +220,6 @@ usersRouter.put("/:id", async (req, res) => {
         password,
         email,
         balance,
-        manID,
-        phone,
         referralCode,
         referredBy,
         reward,
@@ -238,8 +232,6 @@ usersRouter.put("/:id", async (req, res) => {
     password="${passwordHash}",
      email="${email}", 
      balance="${balance}",
-     manID="${manID}",
-     phone="${phone}",
      referralCode="${referralCode}"
      ,referredBy="${referredBy}"
      ,
@@ -287,7 +279,8 @@ usersRouter.post("/forgotpassword", async (req, res) => {
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
           const random =
-        Math.floor(100000 + Math.random() * 900000) + result[0].id.toString();
+            Math.floor(100000 + Math.random() * 900000) +
+            result[0].id.toString();
           const update = `UPDATE users set passverificationnumber="${random}" WHERE email = "${email}"`;
           const timeupdate = `UPDATE users set passverificationnumber=NULL WHERE email = "${email}"`;
           const transporter = nodemailer.createTransport({
