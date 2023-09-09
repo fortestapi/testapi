@@ -12,8 +12,8 @@ usersRouter.get("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `SELECT * FROM users`;
-     await conection.query(sql_query, (err, result) => {
-        res.send(result)
+      conection.query(sql_query, (err, result) => {
+        res.send(result);
       });
     } catch (err) {
       res.send(err.message);
@@ -78,24 +78,32 @@ usersRouter.post("/verify", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const { email } = req.body;
-      const random = Math.floor(100000 + Math.random() * 900000).toString();
-      const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: "forverifyemailfromnode@gmail.com",
-          pass: "irtednvaqwoilawb",
-        },
-      });
-      const MailOptions = {
-        from: "forverifyemailfromnode@gmail.com",
-        to: email,
-        subject: "verify your email",
-        text: random,
-      };
-      conection.query(sql_query, async () => {
-        await transporter.sendMail(MailOptions);
-        res.send("email sent successfully");
+      const FINDsql_query = `SELECT * FROM users WHERE email = "${email}"`;
+      conection.query(FINDsql_query, (err, result) => {
+        const random =
+          Math.floor(100000 + Math.random() * 900000) + result[0].id.toString();
+        const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
+        const timeoutsql_query = `UPDATE users SET verificationnumber = NULL WHERE email = "${email}"`;
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: "forverifyemailfromnode@gmail.com",
+            pass: "irtednvaqwoilawb",
+          },
+        });
+        const MailOptions = {
+          from: "forverifyemailfromnode@gmail.com",
+          to: email,
+          subject: "verify your email",
+          text: random,
+        };
+        conection.query(sql_query, async () => {
+          await transporter.sendMail(MailOptions);
+          res.send("email sent successfully");
+          setTimeout(() => {
+            conection.query(timeoutsql_query);
+          }, 120000);
+        });
       });
     } catch (error) {
       res.send(error.message);
@@ -275,11 +283,13 @@ usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const { email } = req.body;
-      const random = Math.floor(100000 + Math.random() * 900000).toString();
       const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
         if (result[0]) {
+          const random =
+        Math.floor(100000 + Math.random() * 900000) + result[0].id.toString();
           const update = `UPDATE users set passverificationnumber="${random}" WHERE email = "${email}"`;
+          const timeupdate = `UPDATE users set passverificationnumber=NULL WHERE email = "${email}"`;
           const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -291,10 +301,13 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             from: "forverifyemailfromnode@gmail.com",
             to: email,
             subject: "verify your email",
-            text: random+result[0].id,
+            text: random,
           };
           conection.query(update, async (err, result) => {
             await transporter.sendMail(MailOptions);
+            setTimeout(() => {
+              conection.query(timeupdate);
+            }, 120000);
             res.send("email sent successfully");
           });
         } else {
