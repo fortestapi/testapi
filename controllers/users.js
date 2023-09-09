@@ -141,7 +141,7 @@ usersRouter.post("/", async (req, res) => {
     try {
       let referalscount = [];
       let referredBy = "";
-      let { username, password, email, referralCode } = req.body;
+      let { username, password, email, referralCode ,name,surname} = req.body;
       const test = username + email + password;
       const testt = seedrandom(test).quick().toString().slice(2);
       const userreferalcode = testt.replace(".", "");
@@ -150,13 +150,15 @@ usersRouter.post("/", async (req, res) => {
       const sql_query = `INSERT INTO users
  (username, password, email,
    referralCode,
-   referredBy,userreferalcode)
+   referredBy,userreferalcode,name,surname)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
      '${referralCode}',
      '${referredBy}',
-     '${userreferalcode}');`;
+     '${userreferalcode}',
+     '${name}',
+     '${surname}');`;
       const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
       const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
       conection.query(existingUserName, (err, rows, fields) => {
@@ -181,13 +183,15 @@ usersRouter.post("/", async (req, res) => {
                   const newsql_query = `INSERT INTO users
  (username, password, email,
    referralCode,
-   referredBy,userreferalcode)
+   referredBy,userreferalcode,name,surname)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
      '${referralCode}',
      '${referredBy}',
-     '${userreferalcode}');`;
+     '${userreferalcode}',
+     '${name}',
+     '${surname}');`;
                   conection.query(newsql_query, async (err, result) => {
                     conection.query(updatequerry, (err, result) => {
                       res.status(201).send(result);
@@ -220,9 +224,9 @@ usersRouter.put("/:id", async (req, res) => {
         password,
         email,
         balance,
-        referralCode,
-        referredBy,
         reward,
+        name,
+        surname
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
@@ -231,10 +235,10 @@ usersRouter.put("/:id", async (req, res) => {
    set username="${username}",
     password="${passwordHash}",
      email="${email}", 
-     balance="${balance}",
-     referralCode="${referralCode}"
-     ,referredBy="${referredBy}"
+     balance="${balance}"
      ,
+      name="${name}",
+       surname="${surname}",
      reward="${reward}"
      WHERE id = ${req.params.id}`;
       conection.query(existingUserName, (err, result) => {
