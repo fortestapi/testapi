@@ -163,11 +163,11 @@ usersRouter.post("/", async (req, res) => {
       const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
       conection.query(existingUserName, (err, rows, fields) => {
         if (rows?.length) {
-          res.send("username already taken");
+          res.send("username - username already taken");
         } else {
           conection.query(existingUserEmail, (err, rows, fields) => {
             if (rows?.length) {
-              res.send("email already taken");
+              res.send("email - email already taken");
             } else {
               conection.query(findreferredBy, (err, result) => {
                 if (result[0]) {
@@ -201,7 +201,7 @@ usersRouter.post("/", async (req, res) => {
                     conection.query(sql_query, async (err, result) => {
                       res.status(201).send(result);
                     });
-                 
+                  
                 }
               });
             }
@@ -236,9 +236,9 @@ usersRouter.put("/:id", async (req, res) => {
      WHERE id = ${req.params.id}`;
       conection.query(existingUserName, (err, result) => {
         if (result.length !== 0 && result[0]?.username == username) {
-          res.send("username already taken");
+          res.send("username - username already taken");
         } else if (result.length !== 0 && result[0]?.email == email) {
-          res.send("email already taken");
+          res.send("email - email already taken");
         } else {
           conection.query(sql_query, (err, result) => {
             res.send(result);
@@ -270,7 +270,7 @@ usersRouter.delete("/:id", async (req, res) => {
 
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
-   
+    try {
       const { email } = req.body;
       const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
@@ -295,16 +295,18 @@ usersRouter.post("/forgotpassword", async (req, res) => {
           };
           conection.query(update, async (err, result) => {
             await transporter.sendMail(MailOptions);
-              res.send("email sent successfully");
             setTimeout(() => {
               conection.query(timeupdate);
             }, 120000);
+            res.send("email sent successfully");
           });
         } else {
           res.send("email not found");
         }
       });
-   
+    } catch (error) {
+      res.send(error.message);
+    }
   } else {
     res.status(401).send("you have no permission to this address");
   }
