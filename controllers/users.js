@@ -197,7 +197,7 @@ usersRouter.post("/", async (req, res) => {
                     });
                   });
                 } else {
-                  
+                 
                     conection.query(sql_query, async (err, result) => {
                       res.status(201).send(result);
                     });
@@ -270,7 +270,7 @@ usersRouter.delete("/:id", async (req, res) => {
 
 usersRouter.post("/forgotpassword", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
-    try {
+   
       const { email } = req.body;
       const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
       conection.query(sql_query, (err, result) => {
@@ -304,9 +304,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
           res.send("email not found");
         }
       });
-    } catch (error) {
-      res.send(error.message);
-    }
+   
   } else {
     res.status(401).send("you have no permission to this address");
   }
