@@ -197,7 +197,7 @@ usersRouter.post("/", async (req, res) => {
                     });
                   });
                 } else {
-                
+                  
                     conection.query(sql_query, async (err, result) => {
                       res.status(201).send(result);
                     });
@@ -295,10 +295,10 @@ usersRouter.post("/forgotpassword", async (req, res) => {
           };
           conection.query(update, async (err, result) => {
             await transporter.sendMail(MailOptions);
+              res.send("email sent successfully");
             setTimeout(() => {
               conection.query(timeupdate);
             }, 120000);
-            res.send("email sent successfully");
           });
         } else {
           res.send("email not found");
