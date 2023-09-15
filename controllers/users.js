@@ -191,19 +191,17 @@ usersRouter.post("/", async (req, res) => {
      '${userreferalcode}',
      '${name}',
      '${surname}');`;
-                  conection.query(newsql_query, async (err, result) => {
+                  conection.query(newsql_query, async () => {
                     conection.query(updatequerry, (err, result) => {
                       res.status(201).send(result);
                     });
                   });
                 } else {
-                  if (referralCode == "") {
+                
                     conection.query(sql_query, async (err, result) => {
                       res.status(201).send(result);
                     });
-                  } else {
-                    res.send("referal code incorrect");
-                  }
+                 
                 }
               });
             }
