@@ -125,7 +125,7 @@ usersRouter.put("/verify", (req, res) => {
             res.send("verifyed success");
           });
         } else {
-          res.send("verification code incorrect");
+          res.send("verification_code - incorect verification code");
         }
       });
     } catch (error) {
@@ -201,7 +201,7 @@ usersRouter.post("/", async (req, res) => {
                     conection.query(sql_query, async (err, result) => {
                       res.status(201).send(result);
                     });
-                  
+                 
                 }
               });
             }
@@ -301,7 +301,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             res.send("email sent successfully");
           });
         } else {
-          res.send("email not found");
+          res.send("email - email_not_found");
         }
       });
     } catch (error) {
@@ -327,7 +327,7 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
             res.send("successfully updated");
           });
         } else {
-          res.send("incorect verification code");
+          res.send("verification_code - incorect verification code");
         }
       });
     } catch (error) {
