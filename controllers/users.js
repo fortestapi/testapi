@@ -60,10 +60,10 @@ usersRouter.post("/login", async (req, res) => {
             conection.query(whriteToken);
             res.json(token);
           } else {
-            res.status(401).send("username or password incorrect");
+            res.status(401).send("username_or_password_incorrect");
           }
         } else {
-          res.status(401).send("username or password incorrect");
+          res.status(401).send("username_or_password_incorrect");
         }
       });
     } catch (err) {
@@ -99,7 +99,7 @@ usersRouter.post("/verify", async (req, res) => {
         };
         conection.query(sql_query, async () => {
           await transporter.sendMail(MailOptions);
-          res.send("email sent successfully");
+          res.send("email_sent_successfully");
           setTimeout(() => {
             conection.query(timeoutsql_query);
           }, 120000);
@@ -125,7 +125,7 @@ usersRouter.put("/verify", (req, res) => {
             res.send("verifyed success");
           });
         } else {
-          res.send("verification_code - incorect verification code");
+          res.send("verification_code - incorect_verification_code");
         }
       });
     } catch (error) {
@@ -163,11 +163,11 @@ usersRouter.post("/", async (req, res) => {
       const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
       conection.query(existingUserName, (err, rows, fields) => {
         if (rows?.length) {
-          res.send("username - username already taken");
+          res.send("username - username_already_taken");
         } else {
           conection.query(existingUserEmail, (err, rows, fields) => {
             if (rows?.length) {
-              res.send("email - email already taken");
+              res.send("email - email_already_taken");
             } else {
               conection.query(findreferredBy, (err, result) => {
                 if (result[0]) {
@@ -327,7 +327,7 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
             res.send("successfully updated");
           });
         } else {
-          res.send("verification_code - incorect verification code");
+          res.send("verification_code - incorect_verification_code");
         }
       });
     } catch (error) {
