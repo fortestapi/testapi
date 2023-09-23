@@ -99,7 +99,7 @@ usersRouter.post("/verify", async (req, res) => {
         };
         conection.query(sql_query, async () => {
           await transporter.sendMail(MailOptions);
-          res.send("email_sent_successfully");
+          res.send("email sent successfully");
           setTimeout(() => {
             conection.query(timeoutsql_query);
           }, 120000);
