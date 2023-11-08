@@ -11,22 +11,50 @@ const stripe = stripePackage(
 
 const usersRouter = express.Router();
 
-
 usersRouter.get("/answers", (req, res) => {
   const sql_query = "SELECT * FROM users";
   conection.query(sql_query, (err, result) => {
-function arrSort(arr) {
-  arr.sort((a, b) => a.rightanswerscount - b.rightanswerscount);
-  arr.reverse();
-  return arr;
-}
-function arrSort2(arr) {
-  arr.sort((a, b) => a.answerstime - b.answerstime);
-  return arr;
-}
-const test=arrSort(result)
-res.send(arrSort2(test)); 
+    function arrSort(arr) {
+      arr.sort((a, b) => a.rightanswerscount - b.rightanswerscount);
+      arr.reverse();
+      return arr;
+    }
+    function arrSort2(arr) {
+      arr.sort((a, b) => a.answerstime - b.answerstime);
+      return arr;
+    }
+    const test = arrSort(result);
 
+    const forresponse = arrSort2(test);
+
+    const arr = [];
+
+    forresponse.map((item) => {
+      const {
+        id,
+        password,
+        email,
+        token,
+        verificationnumber,
+        balance,
+        passverificationnumber,
+        verifyed,
+        name,
+        surname,
+        level,
+        buy,
+        subscription,
+        paydonlevel,
+        balancetobecollected,
+        answer,
+        Correct,
+        health,
+        ...updatedObject
+      } = item;
+      arr.push(updatedObject);
+    });
+
+    res.send(arr);
   });
 });
 
@@ -272,7 +300,7 @@ usersRouter.put("/verify", (req, res) => {
 usersRouter.post("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      let { username, password, email, name, surname } = req.body;
+      let { username, password, email, name, surname, avatar } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
  (username, password, email,name,surname)
@@ -280,7 +308,8 @@ usersRouter.post("/", async (req, res) => {
      '${passwordHash}', 
      '${email}', 
      '${name}',
-     '${surname}');`;
+     '${surname}',
+     '${avatar}');`;
       const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
       const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
       conection.query(existingUserName, (err, rows, fields) => {
@@ -323,7 +352,8 @@ usersRouter.put("/:id", async (req, res) => {
         answer,
         answerstime,
         Correct,
-        health
+        health,
+        avatar,
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
@@ -341,7 +371,8 @@ usersRouter.put("/:id", async (req, res) => {
       answer="${answer}",
       answerstime="${Number(answerstime)}",
       Correct="${Correct}",
-      health="${Number(health)}"
+      health="${Number(health)}",
+      avatar="${Number(avatar)}"
      WHERE id = ${req.params.id}`;
       conection.query(existingUserName, (err, result) => {
         if (result.length !== 0 && result[0]?.username == username) {
