@@ -11,6 +11,33 @@ const stripe = stripePackage(
 
 const usersRouter = express.Router();
 
+
+
+usersRouter.get("/answers", (req, res) => {
+
+
+  const sql_query = "SELECT * FROM users";
+  conection.query(sql_query, (err, result) => {
+
+
+function arrSort(arr) {
+  arr.sort((a, b) => a.rightanswerscount - b.rightanswerscount);
+  arr.reverse();
+  return arr;
+}
+
+function arrSort2(arr) {
+  arr.sort((a, b) => a.answerstime - b.answerstime);
+  return arr;
+}
+
+const test=arrSort(result)
+
+res.send(arrSort2(test)); 
+
+  });
+});
+
 usersRouter.post("/deposit", async (req, res) => {
   try {
     (async () => {
@@ -271,10 +298,10 @@ usersRouter.post("/", async (req, res) => {
           conection.query(existingUserEmail, (err, rows, fields) => {
             if (rows?.length) {
               res.send("email - email_already_taken");
-            } else {       
-                  conection.query(sql_query, async (err, result) => {
-                    res.status(201).send(result);
-                  });
+            } else {
+              conection.query(sql_query, async (err, result) => {
+                res.status(201).send(result);
+              });
             }
           });
         }
@@ -303,6 +330,7 @@ usersRouter.put("/:id", async (req, res) => {
         rightanswerscount,
         answer,
         answerstime,
+        Correct,
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
@@ -319,6 +347,7 @@ usersRouter.put("/:id", async (req, res) => {
       rightanswerscount="${Number(rightanswerscount)}",
       answer="${answer}",
       answerstime="${Number(answerstime)}",
+      Correct="${Correct}",
      WHERE id = ${req.params.id}`;
       conection.query(existingUserName, (err, result) => {
         if (result.length !== 0 && result[0]?.username == username) {
