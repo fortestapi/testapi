@@ -323,6 +323,7 @@ usersRouter.put("/:id", async (req, res) => {
         answer,
         answerstime,
         Correct,
+        health
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
@@ -340,6 +341,7 @@ usersRouter.put("/:id", async (req, res) => {
       answer="${answer}",
       answerstime="${Number(answerstime)}",
       Correct="${Correct}",
+      health="${Number(health)}"
      WHERE id = ${req.params.id}`;
       conection.query(existingUserName, (err, result) => {
         if (result.length !== 0 && result[0]?.username == username) {
