@@ -12,27 +12,19 @@ const stripe = stripePackage(
 const usersRouter = express.Router();
 
 
-
 usersRouter.get("/answers", (req, res) => {
-
-
   const sql_query = "SELECT * FROM users";
   conection.query(sql_query, (err, result) => {
-
-
 function arrSort(arr) {
   arr.sort((a, b) => a.rightanswerscount - b.rightanswerscount);
   arr.reverse();
   return arr;
 }
-
 function arrSort2(arr) {
   arr.sort((a, b) => a.answerstime - b.answerstime);
   return arr;
 }
-
 const test=arrSort(result)
-
 res.send(arrSort2(test)); 
 
   });
@@ -343,7 +335,7 @@ usersRouter.put("/:id", async (req, res) => {
       name="${name}",
      surname="${surname}",
      reward="${reward}",
-     balancetobecollected=${Number(balancetobecollected)},
+     balancetobecollected="${Number(balancetobecollected)}",
       rightanswerscount="${Number(rightanswerscount)}",
       answer="${answer}",
       answerstime="${Number(answerstime)}",
