@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { conection } from "../index.js";
 import jwt from "jsonwebtoken";
-import seedrandom from "seedrandom";
 import stripePackage from "stripe";
 const stripe = stripePackage(
   "sk_test_51O1uF3E7glB9R79nKVmFX2DhmuBIdx16CsioyZ0AQd1VTWNgskqNGU5pft2qBa8DbYusMhf5nAQ4gI7y8t2zj3hw00LvocZb8Z"
@@ -97,16 +96,7 @@ usersRouter.get("/levels", (req, res) => {
                 balancetobecollectedonlevel -
                 balancetobecollectedonlevel * (0.45).toString();
               let forbalance = balancetobecollectedonlevel * (0.45).toString();
-              let referalscountfromback = []
-              if (response.paydonlevel0[0].referalscount !== null)
-                referalscountfromback =
-                  response.paydonlevel0[0].referalscount.split(",")
-            console.log(referalscountfromback.length);
-              if (
-                referalscountfromback.length <
-                Math.ceil(response.paydonlevel0[0].level / 3)
-              )
-                forbalance = forbalance / 2;
+
               const updatepaydonlevel = `UPDATE users set  balancetobecollected=${0}, paydonlevel=${Number(
                 1
               )} WHERE id = ${item.id}`;
@@ -263,24 +253,13 @@ usersRouter.put("/verify", (req, res) => {
 usersRouter.post("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
-      let referalscount = [];
-      let referredBy = "";
-      let { username, password, email, referralCode, name, surname } = req.body;
-      const test = username + email + password;
-      const testt = seedrandom(test).quick().toString().slice(2);
-      const userreferalcode = testt.replace(".", "");
-      const findreferredBy = `SELECT * FROM users WHERE  userreferalcode = "${referralCode}"`;
+      let { username, password, email, name, surname } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
- (username, password, email,
-   referralCode,
-   referredBy,userreferalcode,name,surname)
+ (username, password, email,name,surname)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
-     '${referralCode}',
-     '${referredBy}',
-     '${userreferalcode}',
      '${name}',
      '${surname}');`;
       const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
@@ -292,44 +271,10 @@ usersRouter.post("/", async (req, res) => {
           conection.query(existingUserEmail, (err, rows, fields) => {
             if (rows?.length) {
               res.send("email - email_already_taken");
-            } else {
-              conection.query(findreferredBy, (err, result) => {
-                if (result[0]) {
-                  let ttg = [];
-                  if ((result[0].referalscount !== null) | "null") {
-                    ttg = result[0].referalscount.split(",");
-                  }
-                  ttg.push(username);
-                  referalscount = ttg;
-                  referredBy = result[0].username;
-                  const updatequerry = `UPDATE users SET referalscount="${referalscount}" WHERE userreferalcode="${referralCode}"`;
-                  const newsql_query = `INSERT INTO users
- (username, password, email,
-   referralCode,
-   referredBy,userreferalcode,name,surname)
-    VALUES ('${username}',
-     '${passwordHash}', 
-     '${email}', 
-     '${referralCode}',
-     '${referredBy}',
-     '${userreferalcode}',
-     '${name}',
-     '${surname}');`;
-                  conection.query(newsql_query, async () => {
-                    conection.query(updatequerry, (err, result) => {
-                      res.status(201).send(result);
-                    });
+            } else {       
+                  conection.query(sql_query, async (err, result) => {
+                    res.status(201).send(result);
                   });
-                } else {
-                  if (referralCode == "") {
-                    conection.query(sql_query, async (err, result) => {
-                      res.status(201).send(result);
-                    });
-                  } else {
-                    res.send("referal_code_incorrect");
-                  }
-                }
-              });
             }
           });
         }
@@ -355,6 +300,9 @@ usersRouter.put("/:id", async (req, res) => {
         name,
         surname,
         balancetobecollected,
+        rightanswerscount,
+        answer,
+        answerstime,
       } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const existingUserName = `SELECT *  FROM users WHERE id!="${id}"
@@ -367,7 +315,10 @@ usersRouter.put("/:id", async (req, res) => {
       name="${name}",
      surname="${surname}",
      reward="${reward}",
-     balancetobecollected=${Number(balancetobecollected)}
+     balancetobecollected=${Number(balancetobecollected)},
+      rightanswerscount="${Number(rightanswerscount)}",
+      answer="${answer}",
+      answerstime="${Number(answerstime)}",
      WHERE id = ${req.params.id}`;
       conection.query(existingUserName, (err, result) => {
         if (result.length !== 0 && result[0]?.username == username) {
