@@ -51,6 +51,8 @@ usersRouter.get("/answers", (req, res) => {
         health,
         ...updatedObject
       } = item;
+      const score = item.rightanswerscount * 1000 - item.answerstime;
+      updatedObject.score = score;
       arr.push(updatedObject);
     });
 
