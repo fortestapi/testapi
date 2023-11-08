@@ -49,6 +49,8 @@ usersRouter.get("/answers", (req, res) => {
         answer,
         Correct,
         health,
+        answerstime,
+        rightanswerscount,
         ...updatedObject
       } = item;
       const score = item.rightanswerscount * 1000 - item.answerstime;
