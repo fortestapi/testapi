@@ -2,14 +2,57 @@ import express from "express";
 import { VALIDATION_PASSWORD, saltrounds } from "../utils/config.js";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
-import { conection } from "../index.js";
 import jwt from "jsonwebtoken";
 import stripePackage from "stripe";
+import { conection } from "../index.js";
 const stripe = stripePackage(
   "sk_test_51O1uF3E7glB9R79nKVmFX2DhmuBIdx16CsioyZ0AQd1VTWNgskqNGU5pft2qBa8DbYusMhf5nAQ4gI7y8t2zj3hw00LvocZb8Z"
 );
 
 const usersRouter = express.Router();
+
+usersRouter.post("/questions", (req, res) => {
+  const { userid, answer, answertime } = req.body;
+  const sql_query = "SELECT * FROM questions";
+  conection.query(sql_query, (err, result) => {
+    const getusers = `SELECT * FROM users WHERE id ="${userid}"`;
+    conection.query(getusers, (err, users) => {
+      const usersqolquerry2 = `UPDATE users SET answer="${answer}",Correct="false",health="${
+        users[0].health - 1
+      }"  WHERE id ="${userid}"`;
+      const usersqolquerry = `UPDATE users SET answerstime ="${
+        users[0].answerstime + answertime
+      }",answer="${answer}",rightanswerscount="${
+        users[0].rightanswerscount + 1
+      }",Correct="true" WHERE id="${userid}"`;
+      result.map((item) => {
+        item.probably = item.probably.split(",");
+        const filthered = item.probably.find(
+          (gotanswer) => gotanswer == answer
+        );
+        if (filthered == item.right) {
+          conection.query(usersqolquerry, (err, resoult) => {
+            res.send(resoult);
+          });
+        } else {
+          conection.query(usersqolquerry2, (err, resoult) => {
+            res.send(resoult);
+          });
+        }
+      });
+    });
+  });
+});
+
+usersRouter.get("/questions", (req, res) => {
+  const sql_query = "SELECT * FROM questions";
+  conection.query(sql_query, (err, result) => {
+    result.map((item) => {
+      item.probably = item.probably.split(",");
+    });
+    res.send(result);
+  });
+});
 
 usersRouter.get("/answers", (req, res) => {
   const sql_query = "SELECT * FROM users";
@@ -24,11 +67,8 @@ usersRouter.get("/answers", (req, res) => {
       return arr;
     }
     const test = arrSort(result);
-
     const forresponse = arrSort2(test);
-
     const arr = [];
-
     forresponse.map((item) => {
       const {
         id,
