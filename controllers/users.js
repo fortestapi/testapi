@@ -44,11 +44,24 @@ usersRouter.post("/questions", (req, res) => {
   });
 });
 
-usersRouter.get("/questions", (req, res) => {
+usersRouter.get("/questions/:id", (req, res) => {
   const sql_query = "SELECT * FROM questions";
   conection.query(sql_query, (err, result) => {
+    const newsqlquerry = `UPDATE questions set seenby ="${`${result[0].seenby},${req.params.id}`}"   WHERE id = '${
+      result[0].id
+    }'`;
     result.map((item) => {
       item.probably = item.probably.split(",");
+      item.seenby = item.seenby.split(",");
+      
+      const test = item.seenby.find((g) => g == req.params.id);
+      if (test) {
+        result = "you alredy seen that question";
+      } else {
+        conection.query(newsqlquerry, (err, resoult) => {
+          console.log(resoult);
+        });
+      }
     });
     res.send(result);
   });
