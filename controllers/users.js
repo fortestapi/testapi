@@ -360,7 +360,7 @@ usersRouter.post("/", async (req, res) => {
       let { username, password, email, name, surname, avatar } = req.body;
       const passwordHash = await bcrypt.hash(password, Number(saltrounds));
       const sql_query = `INSERT INTO users
- (username, password, email,name,surname)
+ (username, password, email,name,surname,avatar)
     VALUES ('${username}',
      '${passwordHash}', 
      '${email}', 
