@@ -13,16 +13,16 @@ export const conection = mysql2.createConnection({
 
 conection.connect((err,) =>{
   if(err) console.log(err.message)
-  console.log("Connected to database");
+  console.log("Connected to database")
 })
 
-const app = express();
+const app = express()
 app.use(cors());
 app.use(express.json());
 
 
 app.use("/api/users", usersRouter);
 
-app.listen(PORT, () => {
+app.listen(3000, () => {
   console.log(`started on port ${PORT}`);
 });

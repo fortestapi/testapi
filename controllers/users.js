@@ -25,45 +25,44 @@ usersRouter.post("/questions", (req, res) => {
       }",answer="${answer}",rightanswerscount="${
         users[0].rightanswerscount + 1
       }",Correct="true" WHERE id="${userid}"`;
-      result.map((item) => {
-        item.probably = item.probably.split(",");
-        const filthered = item.probably.find(
-          (gotanswer) => gotanswer == answer
-        );
-        if (filthered == item.right) {
-          conection.query(usersqolquerry, (err, resoult) => {
-            res.send(resoult);
-          });
-        } else {
-          conection.query(usersqolquerry2, (err, resoult) => {
-            res.send(resoult);
-          });
-        }
-      });
+
+      result[0].probably = result[0].probably.split(",");
+      const filthered = result[0].probably.find(
+        (gotanswer) => gotanswer == answer
+      );
+      if (filthered == result[0].right) {
+        conection.query(usersqolquerry, (err, resoult) => {
+          res.send(resoult);
+        });
+      } else {
+        conection.query(usersqolquerry2, (err, resoult) => {
+          res.send(resoult);
+        });
+      }
     });
   });
 });
 
 usersRouter.get("/questions/:id", (req, res) => {
   const sql_query = "SELECT * FROM questions";
-  conection.query(sql_query, (err, result) => {
-    const newsqlquerry = `UPDATE questions set seenby ="${`${result[0].seenby},${req.params.id}`}"   WHERE id = '${
-      result[0].id
-    }'`;
-    result.map((item) => {
-      item.probably = item.probably.split(",");
-      item.seenby = item.seenby.split(",");
-      
-      const test = item.seenby.find((g) => g == req.params.id);
-      if (test) {
-        result = "you alredy seen that question";
-      } else {
-        conection.query(newsqlquerry, (err, resoult) => {
-          console.log(resoult);
-        });
-      }
+  const userssql_query = `SELECT * FROM users WHERE id="${req.params.id}"`;
+  conection.query(userssql_query, (err, user) => {
+    conection.query(sql_query, (err, result) => {
+      user[0].seenquestions = user[0].seenquestions.split(",");
+      const newsqlquerry = `UPDATE users set seenquestions ="${`${user[0].seenquestions},${result[0].id}`}"   WHERE id = '${
+        req.params.id
+      }'`;
+      const test = user[0].seenquestions.find((g) => g == result[0].id);
+      result.map((item) => {
+        item.probably = item.probably.split(",");
+        if (test) {
+          result = "you alredy seen that question";
+        } else {
+          conection.query(newsqlquerry, (err, resoult) => {});
+        }
+      });
+      res.send(result);
     });
-    res.send(result);
   });
 });
 
@@ -79,6 +78,7 @@ usersRouter.get("/answers", (req, res) => {
       arr.sort((a, b) => a.answerstime - b.answerstime);
       return arr;
     }
+
     const test = arrSort(result);
     const forresponse = arrSort2(test);
     const arr = [];
@@ -95,7 +95,6 @@ usersRouter.get("/answers", (req, res) => {
         name,
         surname,
         level,
-        buy,
         subscription,
         paydonlevel,
         balancetobecollected,
@@ -104,12 +103,19 @@ usersRouter.get("/answers", (req, res) => {
         health,
         answerstime,
         rightanswerscount,
+        seenquestions,
         ...updatedObject
       } = item;
       const score = item.rightanswerscount * 1000 - item.answerstime;
       updatedObject.score = score;
       arr.push(updatedObject);
     });
+
+   (
+      arr.sort((p1, p2) =>
+        p1.score < p2.score ? 1 : p1.score > p2.score ? -1 : 0
+      )
+    );
 
     res.send(arr);
   });
@@ -200,7 +206,8 @@ usersRouter.get("/levels", (req, res) => {
                 balancetobecollectedonlevel -
                 balancetobecollectedonlevel * (0.45).toString();
               let forbalance = balancetobecollectedonlevel * (0.45).toString();
-
+              if (response.paydonlevel0[0].subscription == 0)
+                forbalance = forbalance / 2;
               const updatepaydonlevel = `UPDATE users set  balancetobecollected=${0}, paydonlevel=${Number(
                 1
               )} WHERE id = ${item.id}`;
