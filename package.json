@@ -23,5 +23,9 @@
     "seedrandom": "^3.0.5",
     "stripe": "^13.11.0",
     "stripe-mock-data": "^1.0.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1"
   }
 }

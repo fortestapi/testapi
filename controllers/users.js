@@ -25,7 +25,6 @@ usersRouter.post("/questions", (req, res) => {
       }",answer="${answer}",rightanswerscount="${
         users[0].rightanswerscount + 1
       }",Correct="true" WHERE id="${userid}"`;
-
       result[0].probably = result[0].probably.split(",");
       const filthered = result[0].probably.find(
         (gotanswer) => gotanswer == answer
@@ -69,20 +68,8 @@ usersRouter.get("/questions/:id", (req, res) => {
 usersRouter.get("/answers", (req, res) => {
   const sql_query = "SELECT * FROM users";
   conection.query(sql_query, (err, result) => {
-    function arrSort(arr) {
-      arr.sort((a, b) => a.rightanswerscount - b.rightanswerscount);
-      arr.reverse();
-      return arr;
-    }
-    function arrSort2(arr) {
-      arr.sort((a, b) => a.answerstime - b.answerstime);
-      return arr;
-    }
-
-    const test = arrSort(result);
-    const forresponse = arrSort2(test);
     const arr = [];
-    forresponse.map((item) => {
+    result.map((item) => {
       const {
         id,
         password,
@@ -110,13 +97,9 @@ usersRouter.get("/answers", (req, res) => {
       updatedObject.score = score;
       arr.push(updatedObject);
     });
-
-   (
-      arr.sort((p1, p2) =>
-        p1.score < p2.score ? 1 : p1.score > p2.score ? -1 : 0
-      )
+    arr.sort((p1, p2) =>
+      p1.score < p2.score ? 1 : p1.score > p2.score ? -1 : 0
     );
-
     res.send(arr);
   });
 });
