@@ -12,8 +12,9 @@ export const pool = mysql.createPool({
   database: database,
 });
 
-// Get a connection from the pool
-pool.getConnection((err, connection) => {
+
+const test=async()=>{
+ await pool.getConnection((err, connection) => {
   if (err) {
     console.error("Error connecting to MySQL:", err);
     return;
@@ -21,6 +22,10 @@ pool.getConnection((err, connection) => {
 
   console.log("Connected to MySQL database");
 });
+}
+
+test()
+
 
 const app = express();
 app.use(cors());
