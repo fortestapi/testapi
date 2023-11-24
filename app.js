@@ -1,8 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import { PORT, database, host, password, user } from './utils/config.js';
-import usersRouter from './controllers/users.js';
-import mysql from'mysql2'
+import express from "express";
+import cors from "cors";
+import { PORT, database, host, password, user } from "./utils/config.js";
+import usersRouter from "./controllers/users.js";
+import mysql from "mysql2";
 
 // Create a connection pool
 export const pool = mysql.createPool({
@@ -10,9 +10,9 @@ export const pool = mysql.createPool({
   user: user,
   password: password,
   database: database,
-  //   waitForConnections: true,
-  //   connectionLimit: 10,
-  //   queueLimit: 0
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 // Get a connection from the pool
@@ -25,11 +25,9 @@ pool.getConnection((err, connection) => {
   console.log("Connected to MySQL database");
 });
 
-
-const app = express()
+const app = express();
 app.use(cors());
 app.use(express.json());
-
 
 app.use("/api/users", usersRouter);
 
