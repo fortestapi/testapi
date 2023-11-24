@@ -1,12 +1,12 @@
-import express from 'express';
-import { VALIDATION_PASSWORD, saltrounds } from '../utils/config.js';
-import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
-import jwt from 'jsonwebtoken';
-import stripePackage from 'stripe';
-import { pool } from '../app.js';
+import express from "express";
+import { VALIDATION_PASSWORD, saltrounds } from "../utils/config.js";
+import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
+import stripePackage from "stripe";
+import { pool } from "../app.js";
 const stripe = stripePackage(
-  'sk_test_51O1uF3E7glB9R79nKVmFX2DhmuBIdx16CsioyZ0AQd1VTWNgskqNGU5pft2qBa8DbYusMhf5nAQ4gI7y8t2zj3hw00LvocZb8Z'
+  "sk_test_51O1uF3E7glB9R79nKVmFX2DhmuBIdx16CsioyZ0AQd1VTWNgskqNGU5pft2qBa8DbYusMhf5nAQ4gI7y8t2zj3hw00LvocZb8Z"
 );
 
 const usersRouter = express.Router();
@@ -215,18 +215,24 @@ usersRouter.get("/levels", (req, res) => {
 });
 
 usersRouter.get("/", async (req, res) => {
-  if (VALIDATION_PASSWORD == req.headers.authorization) {
-    try {
+  // if (VALIDATION_PASSWORD == req.headers.authorization) {
+  //   try {
       const sql_query = `SELECT * FROM users`;
-      pool.query(sql_query, (err, result) => {
-        res.send(result);
-      });
-    } catch (err) {
-      res.send(err.message);
-    }
-  } else {
-    res.status(401).send("you have no permission to this address");
-  }
+  //     pool.query(sql_query, (err, result) => {
+  //       res.send(result);
+  //     });
+  //   } catch (err) {
+  //     res.send(err.message);
+  //   }
+  // } else {
+  //   res.status(401).send("you have no permission to this address");
+  // }
+
+  pool.getConnection((err, connection)=> {
+    connection.query(sql_query,async (err, result) => {
+     await res.send(result);
+    });
+  });
 });
 
 usersRouter.get("/:token", async (req, res) => {
