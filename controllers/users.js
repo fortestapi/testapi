@@ -1,12 +1,12 @@
-import express from "express";
-import { VALIDATION_PASSWORD, saltrounds } from "../utils/config.js";
-import bcrypt from "bcrypt";
-import nodemailer from "nodemailer";
-import jwt from "jsonwebtoken";
-import stripePackage from "stripe";
-import { conection } from "../index.js";
+import express from 'express';
+import { VALIDATION_PASSWORD, saltrounds } from '../utils/config.js';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+import stripePackage from 'stripe';
+import { pool } from '../app.js';
 const stripe = stripePackage(
-  "sk_test_51O1uF3E7glB9R79nKVmFX2DhmuBIdx16CsioyZ0AQd1VTWNgskqNGU5pft2qBa8DbYusMhf5nAQ4gI7y8t2zj3hw00LvocZb8Z"
+  'sk_test_51O1uF3E7glB9R79nKVmFX2DhmuBIdx16CsioyZ0AQd1VTWNgskqNGU5pft2qBa8DbYusMhf5nAQ4gI7y8t2zj3hw00LvocZb8Z'
 );
 
 const usersRouter = express.Router();
@@ -14,9 +14,9 @@ const usersRouter = express.Router();
 usersRouter.post("/questions", (req, res) => {
   const { userid, answer, answertime } = req.body;
   const sql_query = "SELECT * FROM questions";
-  conection.query(sql_query, (err, result) => {
+  pool.query(sql_query, (err, result) => {
     const getusers = `SELECT * FROM users WHERE id ="${userid}"`;
-    conection.query(getusers, (err, users) => {
+    pool.query(getusers, (err, users) => {
       const usersqolquerry2 = `UPDATE users SET answer="${answer}",Correct="false",health="${
         users[0].health - 1
       }"  WHERE id ="${userid}"`;
@@ -30,11 +30,11 @@ usersRouter.post("/questions", (req, res) => {
         (gotanswer) => gotanswer == answer
       );
       if (filthered == result[0].right) {
-        conection.query(usersqolquerry, (err, resoult) => {
+        pool.query(usersqolquerry, (err, resoult) => {
           res.send(resoult);
         });
       } else {
-        conection.query(usersqolquerry2, (err, resoult) => {
+        pool.query(usersqolquerry2, (err, resoult) => {
           res.send(resoult);
         });
       }
@@ -45,8 +45,8 @@ usersRouter.post("/questions", (req, res) => {
 usersRouter.get("/questions/:id", (req, res) => {
   const sql_query = "SELECT * FROM questions";
   const userssql_query = `SELECT * FROM users WHERE id="${req.params.id}"`;
-  conection.query(userssql_query, (err, user) => {
-    conection.query(sql_query, (err, result) => {
+  pool.query(userssql_query, (err, user) => {
+    pool.query(sql_query, (err, result) => {
       user[0].seenquestions = user[0].seenquestions.split(",");
       const newsqlquerry = `UPDATE users set seenquestions ="${`${user[0].seenquestions},${result[0].id}`}"   WHERE id = '${
         req.params.id
@@ -57,7 +57,7 @@ usersRouter.get("/questions/:id", (req, res) => {
         if (test) {
           result = "you alredy seen that question";
         } else {
-          conection.query(newsqlquerry, (err, resoult) => {});
+          pool.query(newsqlquerry, (err, resoult) => {});
         }
       });
       res.send(result);
@@ -67,7 +67,7 @@ usersRouter.get("/questions/:id", (req, res) => {
 
 usersRouter.get("/answers", (req, res) => {
   const sql_query = "SELECT * FROM users";
-  conection.query(sql_query, (err, result) => {
+  pool.query(sql_query, (err, result) => {
     const arr = [];
     result.map((item) => {
       const {
@@ -154,7 +154,7 @@ usersRouter.get("/levels", (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = "SELECT * FROM users";
-      conection.query(sql_query, (err, result) => {
+      pool.query(sql_query, (err, result) => {
         const filteredResult = result.filter(
           (response) => response.level !== 0
         );
@@ -199,8 +199,8 @@ usersRouter.get("/levels", (req, res) => {
               }, balancetobecollected=${forbalancetobecollected},paydonlevel=${0}, level=${
                 response.paydonlevel0[0].level + 1
               } WHERE id = ${response.paydonlevel0[0].id}`;
-              conection.query(updatepaydonlevel);
-              conection.query(levelup);
+              pool.query(updatepaydonlevel);
+              pool.query(levelup);
             });
           }
         });
@@ -218,7 +218,7 @@ usersRouter.get("/", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `SELECT * FROM users`;
-      conection.query(sql_query, (err, result) => {
+      pool.query(sql_query, (err, result) => {
         res.send(result);
       });
     } catch (err) {
@@ -233,7 +233,7 @@ usersRouter.get("/:token", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `SELECT * FROM users WHERE token = "${req.params.token}"`;
-      conection.query(sql_query, async (err, result) => {
+      pool.query(sql_query, async (err, result) => {
         if (result[0]) {
           res.send(result[0]);
         } else {
@@ -253,7 +253,7 @@ usersRouter.post("/login", async (req, res) => {
     try {
       const { username, password } = req.body;
       const findUser = `SELECT * FROM users WHERE username = "${username}"`;
-      conection.query(findUser, async (err, result) => {
+      pool.query(findUser, async (err, result) => {
         if (result?.length) {
           const passwordCorrect = await bcrypt.compare(
             password,
@@ -263,7 +263,7 @@ usersRouter.post("/login", async (req, res) => {
             const userForToken = { password, username };
             const token = jwt.sign(userForToken, saltrounds).toString();
             const whriteToken = `UPDATE users set token="${token}" WHERE username ="${username}"`;
-            conection.query(whriteToken);
+            pool.query(whriteToken);
             res.json(token);
           } else {
             res.status(401).send("username_or_password_incorrect");
@@ -285,7 +285,7 @@ usersRouter.post("/verify", async (req, res) => {
     try {
       const { email } = req.body;
       const FINDsql_query = `SELECT * FROM users WHERE email = "${email}"`;
-      conection.query(FINDsql_query, (err, result) => {
+      pool.query(FINDsql_query, (err, result) => {
         const random =
           Math.floor(100000 + Math.random() * 900000) + result[0].id.toString();
         const sql_query = `UPDATE users SET verificationnumber = "${random}" WHERE email = "${email}"`;
@@ -305,11 +305,11 @@ usersRouter.post("/verify", async (req, res) => {
           subject: "verify your email",
           text: random,
         };
-        conection.query(sql_query, async () => {
+        pool.query(sql_query, async () => {
           await transporter.sendMail(MailOptions);
           res.send("email sent successfully");
           setTimeout(() => {
-            conection.query(timeoutsql_query);
+            pool.query(timeoutsql_query);
           }, 120000);
         });
       });
@@ -326,10 +326,10 @@ usersRouter.put("/verify", (req, res) => {
     try {
       const { verificationnumber } = req.body;
       const find = `SELECT * FROM users WHERE verificationnumber = ${verificationnumber}`;
-      conection.query(find, (err, result) => {
+      pool.query(find, (err, result) => {
         if (result[0]) {
           const sql_query = `UPDATE users set verifyed="true",verificationnumber = NULL WHERE verificationnumber = ${verificationnumber}`;
-          conection.query(sql_query, () => {
+          pool.query(sql_query, () => {
             res.send("verifyed success");
           });
         } else {
@@ -359,15 +359,15 @@ usersRouter.post("/", async (req, res) => {
      '${avatar}');`;
       const existingUserName = `SELECT *  FROM users WHERE username ="${username}" `;
       const existingUserEmail = `SELECT *  FROM users WHERE email ="${email}" `;
-      conection.query(existingUserName, (err, rows, fields) => {
+      pool.query(existingUserName, (err, rows, fields) => {
         if (rows?.length) {
           res.send("username - username_already_taken");
         } else {
-          conection.query(existingUserEmail, (err, rows, fields) => {
+          pool.query(existingUserEmail, (err, rows, fields) => {
             if (rows?.length) {
               res.send("email - email_already_taken");
             } else {
-              conection.query(sql_query, async (err, result) => {
+              pool.query(sql_query, async (err, result) => {
                 res.status(201).send(result);
               });
             }
@@ -421,13 +421,13 @@ usersRouter.put("/:id", async (req, res) => {
       health="${Number(health)}",
       avatar="${Number(avatar)}"
      WHERE id = ${req.params.id}`;
-      conection.query(existingUserName, (err, result) => {
+      pool.query(existingUserName, (err, result) => {
         if (result.length !== 0 && result[0]?.username == username) {
           res.send("username - username already taken");
         } else if (result.length !== 0 && result[0]?.email == email) {
           res.send("email - email already taken");
         } else {
-          conection.query(sql_query, (err, result) => {
+          pool.query(sql_query, (err, result) => {
             res.send(result);
           });
         }
@@ -444,7 +444,7 @@ usersRouter.delete("/:id", async (req, res) => {
   if (VALIDATION_PASSWORD == req.headers.authorization) {
     try {
       const sql_query = `DELETE FROM users WHERE id = ${req.params.id}`;
-      conection.query(sql_query, (err, result) => {
+      pool.query(sql_query, (err, result) => {
         res.send(result);
       });
     } catch (error) {
@@ -460,7 +460,7 @@ usersRouter.post("/forgotpassword", async (req, res) => {
     try {
       const { email } = req.body;
       const sql_query = `SELECT * FROM users WHERE email = "${email}"`;
-      conection.query(sql_query, (err, result) => {
+      pool.query(sql_query, (err, result) => {
         if (result[0]) {
           const random =
             Math.floor(100000 + Math.random() * 900000) +
@@ -482,10 +482,10 @@ usersRouter.post("/forgotpassword", async (req, res) => {
             subject: "verify your email",
             text: random,
           };
-          conection.query(update, async (err, result) => {
+          pool.query(update, async (err, result) => {
             await transporter.sendMail(MailOptions);
             setTimeout(() => {
-              conection.query(timeupdate);
+              pool.query(timeupdate);
             }, 120000);
             res.send("email sent successfully");
           });
@@ -510,9 +510,9 @@ usersRouter.put("/forgotpassword/verify", async (req, res) => {
       const update = `UPDATE users set
      password="${passwordHash}",
      passverificationnumber=NULL where passverificationnumber=${verificationCode}`;
-      conection.query(sql_query, (err, result) => {
+      pool.query(sql_query, (err, result) => {
         if (result[0]) {
-          conection.query(update, (err, result) => {
+          pool.query(update, (err, result) => {
             res.send("successfully updated");
           });
         } else {
