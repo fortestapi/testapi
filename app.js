@@ -10,9 +10,6 @@ export const pool = mysql.createPool({
   user: user,
   password: password,
   database: database,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
 });
 
 // Get a connection from the pool
