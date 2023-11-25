@@ -215,24 +215,18 @@ usersRouter.get("/levels", (req, res) => {
 });
 
 usersRouter.get("/", async (req, res) => {
-  // if (VALIDATION_PASSWORD == req.headers.authorization) {
-  //   try {
+   if (VALIDATION_PASSWORD == req.headers.authorization) {
+     try {
       const sql_query = `SELECT * FROM users`;
-  //     pool.query(sql_query, (err, result) => {
-  //       res.send(result);
-  //     });
-  //   } catch (err) {
-  //     res.send(err.message);
-  //   }
-  // } else {
-  //   res.status(401).send("you have no permission to this address");
-  // }
-
-  pool.getConnection((err, connection)=> {
-    connection.query(sql_query,async (err, result) => {
-     await res.send(result);
-    });
-  });
+       pool.query(sql_query, (err, result) => {
+         res.send(result);
+       });
+     } catch (err) {
+       res.send(err.message);
+     }
+   } else {
+     res.status(401).send("you have no permission to this address");
+   }
 });
 
 usersRouter.get("/:token", async (req, res) => {
