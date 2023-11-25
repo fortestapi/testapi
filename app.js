@@ -12,20 +12,20 @@ export const pool = mysql.createPool({
   database: database,
 });
 
+const connection = mysql.createConnection({
+  host: 's684.fra8.mysecurecloudhost.com',
+  user: 'goldenst_strategyuser',
+  password: 'Tokhliauri123',
+  database: 'goldenst_strategydb',
+});
 
-const test=async()=>{
- await pool.getConnection((err, connection) => {
+connection.connect((err) => {
   if (err) {
-    console.error("Error connecting to MySQL:", err);
+    console.error('Error connecting to MySQL database: ' + err.stack);
     return;
   }
-
-  console.log("Connected to MySQL database");
-});
-}
-
-test()
-
+  console.log('Connected to MySQL database as id ' + connection.threadId);
+})
 
 const app = express();
 app.use(cors());
