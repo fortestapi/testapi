@@ -5,9 +5,7 @@ const usersRouter = express.Router();
 
 usersRouter.get("/", async (req, res) => {
   try {
-    const sql_query = `SELECT * FROM users`;
-    const results = await queryDatabase(sql_query);
-    res.send(results);
+   res.send('users')
   } catch (err) {
     res.send(err.message);
   }
