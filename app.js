@@ -1,0 +1,36 @@
+import express from "express";
+import cors from "cors";
+import { PORT } from "./utils/config.js";
+import authRouter from "./controllers/auth.js";
+import mariadb from "mariadb";
+import usersRouter from "./controllers/users.js";
+import bodyParser from "body-parser";
+import questionsRouter from "./controllers/questions.js";
+
+
+export const conection = mariadb.createPool({
+  host: "bqohr8a7iumyappvkudf-mysql.services.clever-cloud.com",
+  user: "urc29xzncnewxm0t",
+  password: "AnPehD1d6Jih1Tw7NzMn",
+  database: "bqohr8a7iumyappvkudf",
+  port: "3306",
+});
+
+const app = express();
+app.use(cors(),express.json())
+
+// app.use((req, res, next) => {
+//   if (req.originalUrl === "/api/payment/webhook") {
+//     next(); // Do nothing with the body because I need it in a raw state.
+//   } else {
+//     bodyParser.json()(req, res, next); // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
+//   }
+// });
+
+app.use("/api/users", usersRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/questions", questionsRouter);
+
+app.listen(3000, () => {
+  console.log(`started on port ${PORT}`);
+});
