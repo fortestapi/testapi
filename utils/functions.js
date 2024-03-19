@@ -15,18 +15,15 @@ import { conection } from "../app.js";
 
 // Function to handle database queries
 export async function queryDatabase(sql, values) {
-  return new Promise(async (resolve, reject) => {
-    let conn;
-    try {
-      conn = await conection.getConnection();
-      const rows = await conn.query(sql, values);
-      resolve(rows);
-    } catch (err) {
-      reject(err);
-    } finally {
-      if (conn) return conn.end();
-    }
-  });
+  try {
+    const conn = await conection.getConnection();
+    const rows = await conn.query(sql, values);
+    conn.release(); // Release the connection back to the pool
+    return rows;
+  } catch (err) {
+    console.error("Error executing SQL query:", err);
+    throw err; // Re-throw the error for handling in the caller
+  }
 }
 //Get user id with email
 export const getUserIdByEmail = async (email) => {

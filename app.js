@@ -14,7 +14,11 @@ export const conection = mariadb.createPool({
   password: "AnPehD1d6Jih1Tw7NzMn",
   database: "bqohr8a7iumyappvkudf",
   port: "3306",
+  connectionLimit: 10, // Adjust according to your needs
+  connectTimeout: 10000, // Adjust according to your needs
 });
+
+
 
 const app = express();
 app.use(cors(),express.json())
