@@ -52,7 +52,6 @@ export const addCustomerTransaction = async (
   } catch (error) {}
 };
 
-
 export async function levelup(req, res) {
   try {
     let rounds = 0;
@@ -61,7 +60,6 @@ export async function levelup(req, res) {
         rounds = 0;
         const sql_query = "SELECT * FROM users";
         const results = await queryDatabase(sql_query);
-
         const filteredResult = results.filter(
           (response) => response.payment_status !== 0
         );
@@ -106,7 +104,7 @@ export async function levelup(req, res) {
             let distributedBalance = 0;
             let peopleOnFirstLevelToUpdate = 0;
             let testremainingBalance =
-              forbalancetobecollected - distributedBalance;
+             forbalancetobecollected - distributedBalance;
             for (const user of level1Users) {
               testremainingBalance =
                 forbalancetobecollected - distributedBalance;

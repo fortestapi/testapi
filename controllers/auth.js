@@ -42,7 +42,7 @@ authRouter.post("/register", async (req, res) => {
       email,
       avatar,
     ]);
-    await levelup(req, res);
+
     res.status(201).json({
       result: {
         id: parseInt(results.insertId),
@@ -56,17 +56,13 @@ authRouter.post("/register", async (req, res) => {
   }
 });
 
-authRouter.get("/test", async (req, res) => {
-  await levelup(req, res);
-});
-
 ////////////VERIFY AFTER REGISTRATION//////////////////////
 authRouter.post("/register/verify", async (req, res) => {
   try {
     // Destructure request body
     const { email } = req.body;
     // Create nodemailer transporter
-  
+
     // Find user in the database
     const findUserQuery = `SELECT * FROM users WHERE email = ?`;
     const result = await queryDatabase(findUserQuery, [email]);
@@ -75,26 +71,26 @@ authRouter.post("/register/verify", async (req, res) => {
       // Generate a random verification number
       const randomVerificationNumber =
         Math.floor(100000 + Math.random() * 900000) + result[0].id.toString();
- const transporter = nodemailer.createTransport({
-     service: "gmail",
-     auth: {
-       user: "babutsidze2003gia@gmail.com",
-       pass: "fdbj faiu pdff zkxv",
-     },
-   });
-   const mailOptions = {
-     from: "babutsidze2003gia@gmail.com",
-     to: email,
-     subject: "verify your email",
-     text: `Your verification number is: ${randomVerificationNumber}`,
-   };
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "babutsidze2003gia@gmail.com",
+          pass: "fdbj faiu pdff zkxv",
+        },
+      });
+      const mailOptions = {
+        from: "babutsidze2003gia@gmail.com",
+        to: email,
+        subject: "verify your email",
+        text: `Your verification number is: ${randomVerificationNumber}`,
+      };
       // Update the verification number in the database
       const updateQuery = `UPDATE users SET verificationnumber = ? WHERE email = ?`;
       const timeoutQuery = `UPDATE users SET verificationnumber = NULL WHERE email = ?`;
       await queryDatabase(updateQuery, [randomVerificationNumber, email]);
       try {
         // Send email with the verification number
-       
+
         await transporter.sendMail(mailOptions);
         res.send("email sent successfully");
       } catch (error) {
@@ -126,7 +122,7 @@ authRouter.put("/register/verify", async (req, res) => {
     if (result[0]) {
       // Update the user to set verified=true and clear the verification number
       const updateQuery = `UPDATE users SET verifyed = ?, verificationnumber = ? WHERE verificationnumber = ?`;
-      await queryDatabase(updateQuery, ["true",null,verificationnumber]);
+      await queryDatabase(updateQuery, ["true", null, verificationnumber]);
 
       res.send("verifyed_success");
     } else {
@@ -176,9 +172,9 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
-authRouter.get("/", async (req, res) => {
-  const { token } = req.query;
-
+authRouter.get("/:token", async (req, res) => {
+  const  {token}  = req.params
+console.log(token);
   try {
     const sql_query = `SELECT * FROM users WHERE token = ?`;
     const result = await queryDatabase(sql_query, [token]);
@@ -210,7 +206,6 @@ authRouter.post("/forgotpassword", async (req, res) => {
       // Update the verification number in the database
       const updateQuery = `UPDATE users SET passverificationnumber = ? WHERE email = ?`;
       await queryDatabase(updateQuery, [randomVerificationNumber, email]);
-
 
       const transporter = nodemailer.createTransport({
         service: "gmail",
