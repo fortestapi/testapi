@@ -173,8 +173,8 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.get("/:token", async (req, res) => {
-  const  {token}  = req.params
-console.log(token);
+  const { token } = req.params;
+  console.log(token);
   try {
     const sql_query = `SELECT * FROM users WHERE token = ?`;
     const result = await queryDatabase(sql_query, [token]);

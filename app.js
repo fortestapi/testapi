@@ -6,6 +6,7 @@ import mariadb from "mariadb";
 import usersRouter from "./controllers/users.js";
 import bodyParser from "body-parser";
 import questionsRouter from "./controllers/questions.js";
+import resultsRouter from "./controllers/results.js";
 
 
 export const conection = mariadb.createPool({
@@ -34,6 +35,7 @@ app.use(cors(),express.json())
 app.use("/api/users", usersRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/questions", questionsRouter);
+app.use("/api/results", resultsRouter);
 
 app.listen(3000, () => {
   console.log(`started on port ${PORT}`);
